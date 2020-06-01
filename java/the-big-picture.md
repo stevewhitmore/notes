@@ -1,32 +1,44 @@
-## Four platforms:
-**SE (Standard)**
+# Jave EE: The Big Picture
+
+## Four platforms
+
+### SE (Standard)
+
 - Core platform
 - Core libraries and APIs
 - Basic types and bojects to high-level classes
 - JVM (JDK)
 - Dev tools (JDK)
 - Deployment and monitorying (JDK)
-**ME (Micro)**
+
+### ME (Micro)
+
 - Subset of SE
 - For mobile devices
 - Small footprint JVM
 - Small devices like sensors, printers, etc
 - IoT
-**FX**
+
+### FX
+
 - Rich internet apps
 - UI API
 - Hardware-accelerated graphics
 - High-performance clients
 - Modern look and feel
 - Connect to remote services
-**EE (Enterprise)**
+
+### EE (Enterprise)
+
 - Extends SE
 - Large scale
 - Distributed system
 - The other 3 are often clients of this platform
 
 ## Enterprise Applications
+
 Designed for:
+
 - Multi-tiered
 - Scalable
 - Releiable
@@ -36,8 +48,11 @@ Designed for:
 """""""""""""""""""""""""""""""""""""""""""""
 
 ### POJO vs Java Bean
+
 A JavaBean is a POJO that is serializable, has a no-argument constructor, and allows access to properties using getter and setter methods
-**POJO**
+
+#### POJO
+
 - It doesn’t have special restrictions other than those forced by Java language
 - It doesn’t provide much control on members.
 - It can implement Serializable interface.
@@ -46,7 +61,8 @@ A JavaBean is a POJO that is serializable, has a no-argument constructor, and al
 - There can be a no-arg constructor.
 - It is used when you don’t want to give restriction on your members and give user complete access of your entity
 
-**Java Bean**
+#### Java Bean
+
 - It is a special POJO which have some restrictions.
 - It provides complete control on members.
 - It should implement serializable interface.
@@ -56,11 +72,13 @@ A JavaBean is a POJO that is serializable, has a no-argument constructor, and al
 - It is used when you want to provide user your entity but only some part of your entity.
 
 ### Hibernate vs Java EE
+
 The relationship between Hibernate and Java EE is that Hibernate is a certified JPA provider, and Java EE is a platform that, among many other specifications, it contains the JPA specification. Hibernate is an implementation of the JPA specification.
 
 """""""""""""""""""""""""""""""""""""""""""""
 
 ## Java EE Architecture
+
 - Container
 - Components
 - Services
@@ -70,7 +88,8 @@ The relationship between Hibernate and Java EE is that Hibernate is a certified 
 - Protocols
 - Java SE APIs
 
-**Container**
+### Container
+
 - Runtime environment
 - hide technical complexity
 - enhance portability
@@ -78,15 +97,18 @@ The relationship between Hibernate and Java EE is that Hibernate is a certified 
 - handle complex low-level details
 - admin applications
 
-**Components**
+### Components
+
 - Static or dynamic web pages
 - server-side classes
 - handle business code
 - process data
 - access legacy systems
 
-**Services**
+### Services
+
 Provides services to containers such as:
+
 - security
 - transaction management
 - naming
@@ -95,38 +117,45 @@ and more
 
 Services are configurable
 Configuration is isolated
+
 - Uses metadata
 
-**Container**
-Open Source exmaples: JBoss, Glassfish, Tommy 
+### Containers
+
+Open Source exmaples: JBoss, Glassfish, Tommy
 Propriatery: IBM Websphere, Oracle Weblogic Server
 You can deploy several applications within a single container. It provides
 isolation (each app has its own resources, components, and class-loader) and provides administration for each app.
 
-**Protocols**
-For interacting with the apps. 
+### Protocols
+
+For interacting with the apps.
+
 - HTTP/S is the big one that's mostly used
 - RMI/IIOP (Remote Method Invocation/Internet Inter-ORB Protocol)
   - Allows user to integrate with CORBA objects which can be written in any language (Ada, C, C++, Java...)
-  
-  
-**Deployment**
-Distributed applications are several instances of an application deployed to several containers. 
+
+### Deployment
+
+Distributed applications are several instances of an application deployed to several containers.
 Allows for:
+
 - Load balancing
 - Fail over
 - Scalability
 - Availability
 
-
 ## Java EE Services
+
 Tiers:
+
 - Business
 - Web
 - Interoperability
 - Services common to most tiers
 
-**Business Tier**
+### Business Tier
+
 handles business logic and handles/processes data
 
 - *Transaction management services*
@@ -141,8 +170,9 @@ handles business logic and handles/processes data
 - *Batch services*
   - Allows user to handle bulk operations running on long-running jobs
   
-**Web Tier**
-Handles interaction between client and business tier 
+### Web Tier
+
+Handles interaction between client and business tier
 
 - *Web pages*
   - HTML5 static content
@@ -157,8 +187,8 @@ Handles interaction between client and business tier
 - *Web sockets*
   - allow bi-direction conversation between web clients and servers
   
-  
-**Interoperability Tier**
+### Interoperability Tier
+
 Allows for interaction with other applications. Is considered one of the biggest advantages of Java EE.
 
 - *SOAP Services**
@@ -170,8 +200,8 @@ Allows for interaction with other applications. Is considered one of the biggest
 - *Connectors*
   - Lets you connect to any db type
   
-  
-**Common Services for most tiers**
+### Common Services for most tiers
+
 - *DI (Dependency Injection)
   - Any resource/component can be injected into any other one
   - Most commonly used one
@@ -181,16 +211,17 @@ Allows for interaction with other applications. Is considered one of the biggest
 - *Concurrency*
   - Important to handle loads easily
   
-  
 ## Java SE Services
+
 Java EE is a superset of SE. Some essential SE services include
+
 - DB Access
 - Naming and directory interface used for injection
 - XML
 - Remote (managing low level communication between components)
 
-
 ## Business Concerns
+
 - Standard
 - Not good for startups that need to be bleeding edge. It's very concerned with backwards compatibility
 - Open(ish) see SO answer:
@@ -203,8 +234,8 @@ So you can build a JVM that behaves in a very Java like way and be completely op
 - Has paid support
 - Easy to hire for. It's got millions of developers using it
 
-
 ## Technical Concerns
+
 - Portable (write once, run everywhere)
 - Can integrate with basically anything
 - Not great for everything (like IoT or client-side dev)
