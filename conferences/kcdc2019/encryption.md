@@ -1,9 +1,11 @@
 # Not Screwing Up Encryption
+
 http://github.com/sstur for slides
 
 Encryption is a subset of cryptography
 
-## Look Into 
+## Look Into
+
 - hashing for pwd but also service interaction for SBS
 - Hashing vs Encryption
 - Async vs Syncronous Encryption

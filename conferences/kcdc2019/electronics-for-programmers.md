@@ -1,11 +1,13 @@
 # Electronics for Programmers
 
 ## Resources to check out
+
 - https://github.com/pulcher - has slides there 
 - Also has a YT channel where he gives tutorials
 - Getting started in Electronics by Forrest M Mims III
 
 ## Basic Tools
+
 - Digital multimeter - DMM
 - Power source
 - Bread board (positive/negative charges on slides)
@@ -16,10 +18,13 @@
 > SparkFun and Arduino to get started (DO IT!!)
 
 ## Resistor
+
 Slows down current that passes through it
+
 - Bands indicate resistance
 
 ## Copneitors (sp?)
+
 - LIke tiny batteries
 - Measured in Farads
 - Rated by Voltage
@@ -27,6 +32,7 @@ Slows down current that passes through it
 **Look into Series vs Parallel circuitry**
 
 ## Diodes: One way valve
+
 Rated on forward and reverse currents
 
 Voltage Triangle
@@ -49,4 +55,3 @@ V = Voltage
 I = Current
 R = Resistance
 P = Watts
-
