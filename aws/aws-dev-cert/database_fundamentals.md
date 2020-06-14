@@ -91,7 +91,7 @@ Amazon DynamoDB -> HTTP response -> Computer
 - RDBMS/ACID Engine
 - Supports complex relationships between tables
 - Uses the Structured Query Language
-- Generally accessed vai a persistent netowrk connection (ODBC)
+- Generally accessed vai a persistent network connection (ODBC)
 - Uses a schema to define tables
 - Generally provides a processing engine within the database to manage procssing of select, create, replace, update, delete statements
 
@@ -102,9 +102,54 @@ Amazon DynamoDB -> HTTP response -> Computer
 - Can store many different data types
 - Generally accessed via RESTful HTTP
 - No schema required
-- Every tabl most have a primary key
+- Every table must have a primary key
 - Scales fast
 - Lighter by design
 
+AWS Non Relational Databases are **DynamoDB** and **Amazon Elasticache**.
 
+## Amazon Non Relational Databases In Depth
 
+### DynamoDB
+
+- A cloud native database for managing high volumes of records and transactions without the need for provisioning capacity up front.
+- A fully managed service
+- Supports both document and key store object
+
+### Amazon Elasticache
+
+Runs on 2 different database engines -
+
+#### Amazon Elasticache for Redis
+
+Use if
+
+- You need complex data types, such as strings, hashes, lists, sets, sorted sets, and bitmaps
+- You need persistence of your key store
+- You need to encryptyour cache data (e.g. to maintain compliance)
+- You need to replicate your cached data
+
+#### Amazon Elasticache for Memcached
+
+Use if
+
+- You need the simplest model possible
+- You need to run large nodes with multiple cores or threads
+- You need the ability to scale out/in, adding and removing nodes as demand on your system increases and decreases
+
+## AWS Relational Databases in Depth
+
+What are the benefits of using Amazon RDS?
+
+- The ability to scale components
+- Automatic backups and patching
+- High availability - can run in parallel over several availability zones
+- Automatic failure detection and recovery
+
+### Amazon RDS for MySQL
+
+- Micro instances - often assocated with free tier so useful for non-prod or pilot projects
+- General purpose - latest gen and current gen like the M series
+- Memory optimized - the latest and current gen R series instances
+- Burst support - latest and current T series instances
+- General purpose storage provides cost-effective storage for small or medium sized workloads
