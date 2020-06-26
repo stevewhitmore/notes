@@ -58,6 +58,14 @@ To see kernel version
 uname -r
 ```
 
+### kde specific
+
+```bash
+kquitapp5 plasmashell # Kill plasma
+kstart5 plasmashell # Start plasma
+```
+
+
 ### xfce specific
 
 ```bash
