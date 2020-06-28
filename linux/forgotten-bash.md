@@ -117,3 +117,7 @@ To extract the contents of a file, use
 tar -xzvf projects.tar.gz
 ```
 "tar: extract, uncompress, and tell me what you're pulling out of projects.tar.gz"
+
+### Turn of machine beeps (Fedora)
+
+rmmod pcspkr
