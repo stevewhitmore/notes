@@ -120,4 +120,6 @@ tar -xzvf projects.tar.gz
 
 ### Turn of machine beeps (Fedora)
 
-rmmod pcspkr
+su -
+modprobe -r pcspkr
+echo "install pcspkr :" >> /etc/modprobe.conf
