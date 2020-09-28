@@ -2,8 +2,16 @@
 
 <nav>
   <ul>
-    <li *ngFor="let note of notes">
-      <a href="">{{note.name}}</a>
+    <li><a routerLink="/">Home</a></li>
+    <li *ngFor="let note of (notesMap$ | async)">
+      <a href="">{{note.category}}</a>
+      <ul>
+        <li *ngFor="let page of note.pages">
+          <a [routerLink]="['page/', page.name]">{{page.name}}</a>
+        </li>
+      </ul>
     </li>
   </ul>
 </nav>
+
+<router-outlet></router-outlet>
