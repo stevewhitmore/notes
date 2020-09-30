@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { filter, map, mergeMap, switchMap } from 'rxjs/operators';
 import { NotesService } from '../notes.service';
 
 @Component({
@@ -9,38 +10,39 @@ import { NotesService } from '../notes.service';
   styleUrls: ['./page.component.scss']
 })
 export class PageComponent implements OnInit {
-  markdownPath: any;
+  pageName: any;
   pageContent: any;
+  routeParamsSub: Subscription;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private notesService: NotesService) {
   }
 
-  ngOnInit(): void {
-    // const pageName = this.route.snapshot.paramMap.get['pageName'];
-
-    // console.log(this.route.snapshot.paramMap)
-
-    // this.notesService.getPageContent(pageName)
-    // .then(response => {
-    //   this.pageContent = response;
-    //   //console.log(this.pageContent)
-    // })
-    // .catch(err => {
-    //   console.error(err);
-    //   throw new Error(err);
-    // })
-
-    this.router.events.subscribe((event: any) => {
-      let r = this.route;
-      while (r.firstChild) {
-          r = r.firstChild
+  ngOnInit(): void {    
+    this.routeParamsSub = this.route.params.subscribe(params => {
+      if (params && params['pageName']) {
+        this.pageName = params['pageName'];
+        this.getPageContent();
       }
-      r.params.subscribe(params => {
-          console.log(params.pageName);
-      });
-    });
+    })
   }
+
+  getPageContent() {
+    this.notesService.getPageContent(this.pageName)
+    .then(response => {
+      this.pageContent = response;
+    })
+    .catch(err => {
+      console.error(err);
+      throw new Error(err);
+    })
+  }
+
+  ngOnDestroy() {
+    if (this.routeParamsSub) { this.routeParamsSub.unsubscribe(); }
+  }
+
+  
 
 }

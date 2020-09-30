@@ -1,17 +1,30 @@
-<!-- <markdown [data]="data"></markdown> -->
+<section class="wrapper">
 
-<nav>
-  <ul>
-    <li><a routerLink="/">Home</a></li>
-    <li *ngFor="let note of (notesMap$ | async)">
-      <a href="">{{note.category}}</a>
-      <ul>
-        <li *ngFor="let page of note.pages">
-          <a [routerLink]="['page/', page.name]">{{page.name}}</a>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav>
+  <nav>
+    <ul>
+      <li *ngFor="let note of (notesMap$ | async)">
+        <button type="button">{{note.category}}</button>
+        <ul>
+          <li *ngFor="let page of note.pages">
+            <a (click)="routeToPage(page)">{{page.name}}</a>
+          </li>
+        </ul>
+        <ul *ngIf="note.subcategories.length">
+          <li *ngFor="let subcategory of note.subcategories">
+            <button type="button">{{subcategory.name}}</button>
+            <ul>
+              <li *ngFor="let page of subcategory.pages">
+                <a (click)="routeToPage(page)">{{page.name}}</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
 
-<router-outlet></router-outlet>
+  <section class="page-content">
+    <router-outlet></router-outlet>
+  </section>
+  
+</section>

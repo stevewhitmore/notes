@@ -1,5 +1,6 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import {take} from 'rxjs/operators';
 
@@ -13,7 +14,8 @@ import {NotesService} from './notes.service';
 export class AppComponent implements OnInit {
   notesMap$: Observable<any>;
 
-  constructor(private notesService: NotesService) {
+  constructor(private notesService: NotesService,
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -22,5 +24,9 @@ export class AppComponent implements OnInit {
 
   getRawNotesMap() {
     this.notesMap$ = this.notesService.getRawNotesMap();
+  }
+
+  routeToPage(page) {
+    this.router.navigate(['page/', page.name]); 
   }
 }
