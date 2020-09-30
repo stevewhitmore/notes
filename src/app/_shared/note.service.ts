@@ -1,20 +1,14 @@
 import { Injectable } from '@angular/core';
-import { of, Subject } from 'rxjs';
-import {tap} from 'rxjs/operators';
-
+import { of } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import { networkInterfaces } from 'os';
-const _ = require('lodash');
-
-const testFolder = '../assets/notes';
-const fs = require('fs');
 
 @Injectable({
   providedIn: 'root'
 })
-export class NotesService {
+export class NoteService {
 
   private _notesMap;
+  private _flattendPages;
 
   constructor(private http: HttpClient) {
   }
@@ -22,7 +16,7 @@ export class NotesService {
   getRawNotesMap() {
     
     if (!this._notesMap) {
-      const data = require('../assets/notes-map.json')
+      const data = require('../../assets/notes-map.json')
       delete data.entries['.git']
       delete data.entries['README.md']
 
@@ -37,8 +31,58 @@ export class NotesService {
     const subCatsMapped = this.mapSubcategoryPages(dirtyMap);
     const nestedPagesMapped = this.mapNestedPages(subCatsMapped);
     
-    console.log(nestedPagesMapped)
     return of(nestedPagesMapped);
+  }
+
+  getPageContent(pageName: string) {
+    let absolutePath, path;
+
+    // TODO: fix leak
+    this.getRawNotesMap().subscribe((notes: any[]) => {
+      for (let note of notes) {
+        for (let page of note['pages']) {
+          if (pageName === page.path.substring(page.path.lastIndexOf('/') + 1)) {
+            absolutePath = page.path;
+          }
+        } 
+        for (let subcat of note['subcategories']) {
+          for (let page of subcat['pages']) {
+            if (pageName === page.path.substring(page.path.lastIndexOf('/') + 1)) {
+              absolutePath = page.path;
+            }
+          } 
+        }
+      }
+    });
+
+    path = absolutePath.substring(absolutePath.lastIndexOf('/assets'));
+
+    return this.http.get(path, { responseType: 'text'}).toPromise();
+
+  }
+
+  getFlattenedPageList() {
+    // TODO: fix leak and cleanup
+    if (!this._flattendPages) {
+      const flattenedPages = [];
+
+      this.getRawNotesMap().subscribe((notes: any[]) => {
+        for (let note of notes) {
+          for (let page of note['pages']) {
+            flattenedPages.push(page)
+          } 
+          for (let subcat of note['subcategories']) {
+            for (let page of subcat['pages']) {
+              flattenedPages.push(page)
+            } 
+          }
+        }
+      });
+
+      this._flattendPages = flattenedPages;
+    }
+
+    return this._flattendPages;
   }
 
   private buildDirtyMap(data) {
@@ -99,32 +143,6 @@ export class NotesService {
     })
 
     return notes;
-  }
-
-  getPageContent(pageName: string) {
-    let absolutePath, path;
-
-    this.getRawNotesMap().subscribe((notes: any[]) => {
-      for (let note of notes) {
-        for (let page of note['pages']) {
-          if (pageName === page.path.substring(page.path.lastIndexOf('/') + 1)) {
-            absolutePath = page.path;
-          }
-        } 
-        for (let subcat of note['subcategories']) {
-          for (let page of subcat['pages']) {
-            if (pageName === page.path.substring(page.path.lastIndexOf('/') + 1)) {
-              absolutePath = page.path;
-            }
-          } 
-        }
-      }
-    });
-
-    path = absolutePath.substring(absolutePath.lastIndexOf('/assets'));
-
-    return this.http.get(path, { responseType: 'text'}).toPromise();
-
   }
 
 }

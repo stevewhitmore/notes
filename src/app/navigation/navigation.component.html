@@ -1,0 +1,34 @@
+<nav>
+  <input type="text"
+          placeholder="Search..."
+          #filterField
+          (keyup)="filterNotes(filterField.value)">
+    <ul *ngIf="!filteredMenuItems.length; else filteredMenu">
+      <li *ngFor="let note of notesMap">
+        <button type="button">{{note.category}}</button>
+        <ul>
+          <li *ngFor="let page of note.pages" class="page">
+            <a (click)="routeToPage(page)">{{page.name}}</a>
+          </li>
+        </ul>
+        <ul *ngIf="note.subcategories.length" class="subcategory">
+          <li *ngFor="let subcategory of note.subcategories">
+            <button type="button">{{subcategory.name}}</button>
+            <ul>
+              <li *ngFor="let page of subcategory.pages" class="page">
+                <a (click)="routeToPage(page)">{{page.name}}</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <ng-template #filteredMenu>
+      <ul>
+        <li *ngFor="let page of filteredMenuItems" class="page">
+          <a (click)="routeToPage(page)">{{page.name}}</a>
+        </li>
+      </ul>
+    </ng-template>
+  </nav>

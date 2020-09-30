@@ -1,8 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { filter, map, mergeMap, switchMap } from 'rxjs/operators';
-import { NotesService } from '../notes.service';
+import { NoteService } from '../_shared/note.service';
 
 @Component({
   selector: 'app-page',
@@ -15,11 +14,14 @@ export class PageComponent implements OnInit {
   routeParamsSub: Subscription;
 
   constructor(private route: ActivatedRoute,
-              private router: Router,
-              private notesService: NotesService) {
+              private noteService: NoteService) {
   }
 
-  ngOnInit(): void {    
+  ngOnInit() {
+    this.listenForRouteChange();
+  }
+
+  listenForRouteChange() {
     this.routeParamsSub = this.route.params.subscribe(params => {
       if (params && params['pageName']) {
         this.pageName = params['pageName'];
@@ -29,7 +31,7 @@ export class PageComponent implements OnInit {
   }
 
   getPageContent() {
-    this.notesService.getPageContent(this.pageName)
+    this.noteService.getPageContent(this.pageName)
     .then(response => {
       this.pageContent = response;
     })

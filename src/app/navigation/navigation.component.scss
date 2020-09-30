@@ -1,0 +1,41 @@
+@mixin item-spacing {
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 1rem;
+    position: relative;
+    font-weight: 600;
+    text-align: left;
+    background-color: transparent;
+    font-size: 1rem;
+}
+
+nav {
+    width: 250px;
+    background-color: #f8f9fa;
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        button {
+            @include item-spacing();
+            &:hover {
+                background-color: #e4e4e4;
+            }
+        }
+        li.page {
+            @include item-spacing();
+            font-weight: normal;
+            padding-left: 1.5rem;
+            a {
+                cursor: pointer;
+                &:hover {
+                    color:#007bff;
+                }
+            }
+        }
+        &.subcategory {
+            padding-left: 1rem;
+        }
+    }
+}

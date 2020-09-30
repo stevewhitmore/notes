@@ -1,32 +1,10 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import {take} from 'rxjs/operators';
 
-import {NotesService} from './notes.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-  notesMap$: Observable<any>;
-
-  constructor(private notesService: NotesService,
-              private router: Router) {
-  }
-
-  ngOnInit() {
-    this.getRawNotesMap();
-  }
-
-  getRawNotesMap() {
-    this.notesMap$ = this.notesService.getRawNotesMap();
-  }
-
-  routeToPage(page) {
-    this.router.navigate(['page/', page.name]); 
-  }
+export class AppComponent {
 }
