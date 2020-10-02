@@ -43,4 +43,8 @@ export class NavigationComponent implements OnInit {
     this.filteredMenuItems = flattened.filter(item => item.name.toLowerCase().indexOf(input.toLowerCase()) > -1);
     console.log(this.filteredMenuItems)
   }
+
+  toggleCollapse(categoryButton) {
+    categoryButton.classList.toggle('collapsed');
+  }
 }

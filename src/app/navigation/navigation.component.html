@@ -1,34 +1,37 @@
 <nav>
-  <input type="text"
-          placeholder="Search..."
-          #filterField
-          (keyup)="filterNotes(filterField.value)">
-    <ul *ngIf="!filteredMenuItems.length; else filteredMenu">
-      <li *ngFor="let note of notesMap">
-        <button type="button">{{note.category}}</button>
-        <ul>
-          <li *ngFor="let page of note.pages" class="page">
-            <a (click)="routeToPage(page)">{{page.name}}</a>
-          </li>
-        </ul>
-        <ul *ngIf="note.subcategories.length" class="subcategory">
-          <li *ngFor="let subcategory of note.subcategories">
-            <button type="button">{{subcategory.name}}</button>
-            <ul>
-              <li *ngFor="let page of subcategory.pages" class="page">
-                <a (click)="routeToPage(page)">{{page.name}}</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-
-    <ng-template #filteredMenu>
+  <div class="filter-area">
+    <i class="fas fa-search"></i>
+    <input type="text"
+            placeholder="Search..."
+            #filterField
+            (keyup)="filterNotes(filterField.value)">
+  </div>
+  <ul *ngIf="!filteredMenuItems.length; else filteredMenu">
+    <li *ngFor="let note of notesMap">
+      <button type="button" #categoryButton (click)="toggleCollapse(categoryButton)">{{note.category}} <i class="fas fa-chevron-up"></i></button>
       <ul>
-        <li *ngFor="let page of filteredMenuItems" class="page">
+        <li *ngFor="let page of note.pages" class="page">
           <a (click)="routeToPage(page)">{{page.name}}</a>
         </li>
       </ul>
-    </ng-template>
-  </nav>
+      <ul *ngIf="note.subcategories.length" class="subcategory">
+        <li *ngFor="let subcategory of note.subcategories">
+          <button type="button" #categoryButton (click)="toggleCollapse(categoryButton)">{{subcategory.name}} <i class="fas fa-chevron-up"></i></button>
+          <ul>
+            <li *ngFor="let page of subcategory.pages" class="page">
+              <a (click)="routeToPage(page)">{{page.name}}</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+  <ng-template #filteredMenu>
+    <ul>
+      <li *ngFor="let page of filteredMenuItems" class="page">
+        <a (click)="routeToPage(page)">{{page.name}}</a>
+      </li>
+    </ul>
+  </ng-template>
+</nav>
