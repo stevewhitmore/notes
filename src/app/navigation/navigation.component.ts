@@ -44,7 +44,11 @@ export class NavigationComponent implements OnInit {
     console.log(this.filteredMenuItems)
   }
 
-  toggleCollapse(categoryButton) {
+  toggleSingleCollapse(categoryButton) {
     categoryButton.classList.toggle('collapsed');
+  }
+
+  toggleCollapse(nav) {
+    nav.classList.toggle('collapsed');
   }
 }

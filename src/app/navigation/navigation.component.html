@@ -1,6 +1,11 @@
-<nav>
+<nav #nav>
+
   <div class="filter-area">
-    <i class="fas fa-search"></i>
+    <button type="button" 
+            class="collapse-menu"
+            (click)="toggleCollapse(nav)">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
     <input type="text"
             placeholder="Search..."
             #filterField
@@ -8,7 +13,7 @@
   </div>
   <ul *ngIf="!filteredMenuItems.length; else filteredMenu">
     <li *ngFor="let note of notesMap">
-      <button type="button" #categoryButton (click)="toggleCollapse(categoryButton)">{{note.category}} <i class="fas fa-chevron-up"></i></button>
+      <button type="button" #categoryButton (click)="toggleSingleCollapse(categoryButton)">{{note.category}} <i class="fas fa-chevron-up"></i></button>
       <ul>
         <li *ngFor="let page of note.pages" class="page">
           <a (click)="routeToPage(page)">{{page.name}}</a>
@@ -16,7 +21,7 @@
       </ul>
       <ul *ngIf="note.subcategories.length" class="subcategory">
         <li *ngFor="let subcategory of note.subcategories">
-          <button type="button" #categoryButton (click)="toggleCollapse(categoryButton)">{{subcategory.name}} <i class="fas fa-chevron-up"></i></button>
+          <button type="button" #categoryButton (click)="toggleSingleCollapse(categoryButton)">{{subcategory.name}} <i class="fas fa-chevron-up"></i></button>
           <ul>
             <li *ngFor="let page of subcategory.pages" class="page">
               <a (click)="routeToPage(page)">{{page.name}}</a>
