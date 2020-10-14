@@ -1,5 +1,6 @@
+import { ViewportScroller } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NoteService } from '../_shared/note.service';
 
@@ -14,7 +15,8 @@ export class PageComponent implements OnInit {
   routeParamsSub: Subscription;
 
   constructor(private route: ActivatedRoute,
-              private noteService: NoteService) {
+              private noteService: NoteService,
+              private viewPortScroller: ViewportScroller) {
   }
 
   ngOnInit() {
@@ -40,11 +42,12 @@ export class PageComponent implements OnInit {
       throw new Error(err);
     })
   }
+  
+  backToTop() {
+    this.viewPortScroller.scrollToPosition([0, 0]);
+  }
 
   ngOnDestroy() {
     if (this.routeParamsSub) { this.routeParamsSub.unsubscribe(); }
   }
-
-  
-
 }
