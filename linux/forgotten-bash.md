@@ -118,8 +118,3 @@ tar -xzvf projects.tar.gz
 ```
 "tar: extract, uncompress, and tell me what you're pulling out of projects.tar.gz"
 
-### Turn of machine beeps (Fedora)
-
-su -
-modprobe -r pcspkr
-echo "install pcspkr :" >> /etc/modprobe.conf
