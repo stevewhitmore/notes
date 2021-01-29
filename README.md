@@ -1,4 +1,4 @@
-# Notes
+# YANA (Yet Another Notes Application)
 
 *"Shockingly original" - Nobody*
 
