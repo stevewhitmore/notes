@@ -15,6 +15,7 @@ myfile.txt -> (some inode ID)
 Creates a new file that points to a new memory location with the contents of the original file.
 
 ![copy image diagram](./images/file-management/copy-diagram.png)
+
 ![copy image](./images/file-management/copy.png)
 
 ### Hard Link
@@ -22,11 +23,14 @@ Creates a new file that points to a new memory location with the contents of the
 Creates a new file that points to the **same** memory location as the original file. This essentially "syncs" the two files
 
 ![hard link diagram](./images/file-management/hardlink-diagram.png)
+
 ![hard link](./images/file-management/hardlink.png)
 
 #### Soft Link
 
-a.k.a. soft links create a file that points to another file. They are just pointers to the file reference (which in itself is pointing to the inode)
+a.k.a. symbolic link. Creates a file that points to another file. They are just pointers to the file reference (which in itself is pointing to the inode)
 
 ![soft link diagram](./images/file-management/symlink-diagram.png)
+
 ![soft link](./images/file-management/symlink.png)
+
