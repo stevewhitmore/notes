@@ -115,4 +115,8 @@ What to tell the end user about the errors?
 - Data is being **pushed** so that you have to **react** to it (instead of intentionally **pulling** it in imperative programming)
 - Errors are **undesirable interruption** of the data stream - you **react** to it too!
 
+## Prefer template-driven forms
 
+See https://open.spotify.com/episode/0z6vROLFGNv7VGiu9I4Z1c
+
+Ward Bell makes a strong case for template-driven forms. He presents it as way simpler and easier to maintain.
