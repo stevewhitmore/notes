@@ -36,7 +36,7 @@ sudo chown root:root /usr/bin/chromedriver
 sudo chmod +x /usr/bin/chromedriver
 ```
 
-### Turn of machine beeps (Fedora)
+### Turn off machine beeps (Fedora)
 
 su -
 modprobe -r pcspkr
