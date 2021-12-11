@@ -45,7 +45,7 @@ Required for programmatic access for authentication
 - Access Key ID is made up of 20 random uppercase alphanumeric characters
 - Secret Access Key ID is made up of 40 random upper/lowercase characters
 
-*The Secret Access Key will only be visible upon creation and cannot be recoverred sine AWS doesn't store a copy. If it's lost a new set of keys will need to be created*
+*The Secret Access Key will only be visible upon creation and cannot be recoverred since AWS doesn't store a copy. If it's lost a new set of keys will need to be created*
 
 Keys must be applied and associated with application. 
 - AWS CLI needs to be instructed to use Access Keys
@@ -131,7 +131,7 @@ Formatted as JSON with at least one structure with this structure:
 ```
 **Version**: The policy language version
 **Statement**: The main element of the policy which includes: 
-    **Sid**: The Statement ID is a unique identifier within the Stgatement array
+    **Sid**: The Statement ID is an optional unique identifier within the Statement array
     **Action**: What action will be allowed or denied depending on the value entered for the Effect element - effectively api calls
     **Effect**: Can be set to "Allow" or "Deny" for previously defined Action. All access to your resources are denied by default. 
     **Resource**: This element specifies the actual resource you wish the "Action" and "Effect" to be applied to. AWS uses ARNs to specify resources following the sytnax - arn:partition:service:region:account-id:resource
@@ -225,3 +225,14 @@ Enables you to easily manage encryption keys to secure data
 - You can control how the keys can be used to encrypt your data
 - If you lose or delete your keys they cannot be recovered
 - You can manage your KMS Custom Master Keys (CMK) from within the IAM console
+
+## Implementing Cross-Account Access Using IAM
+If a team only has access to Dev environment but needs to ocassionally access Prod environment they can temporarily assume a role. As this access is not always required, the team must consciously switch to and asusme the role to acces the other resources.
+- It's possible to add MFA to the role
+
+1. Create a new role from within the **trusting account (Prod)**
+2. Specify the permissions attached to this newly created role which the users in the dev account would assume to carry out their required tasks
+3. You must switch to the **trusted account (Dev)** to grant permissions to your team to allow them to assume the newly created role in the **trusting account (Prod)**
+4. Test the configs by switching to the role
+
+

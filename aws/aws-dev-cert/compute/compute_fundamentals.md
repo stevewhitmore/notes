@@ -3,8 +3,9 @@
 Topics:
 
 - Amazon Elastic Compute Cloud (EC2)
-- Elastic Load Balancing (ELB) & Auto Scaling
 - Amazon EC2 Container Service
+- Amazon Elastic Container Registry
+- Amazon Elastic Container Service for Kubernetes (EKS)
 - AWS Elastic Beanstalk
 - AWS Lambda
 - AWS Batch
@@ -47,7 +48,7 @@ An AMI is an image baseline with an operating system and applications along with
 
 **AWS Marketplace**: You can also purchase AMIs from AWS Marketplace which is an online store of AMIs from trusted vendors. May be good since they could be configured to be optimized for certain security setups or for data migration.
 
-**Community AMIs**: Same as above but non-proprietary.
+**Community AMIs**: An independantly developed AMI made public (shared).
 
 ### Instance Types
 
@@ -67,7 +68,7 @@ There are preconfigured types for specific purposes:
 - Micro instances
 - General purpose
 - Compute optimized
-- etc
+- Memory optimized (ideal for apps that manage real-time unstructured data processing or distributed web cache stores)
 
 ### Instance Purchasing Options
 
@@ -155,7 +156,7 @@ Two types of storage:
 - Available by attaching Elastic Beanstalk Storage (EBS) volumes
 - EBS volumes are separated from the EC2 instances (not physically attached)
 - These volumes are logically attached via AWS network. This is similar to attaching an external drive to a personal computer.
-- You can disconnect the volume from the EC2 instance maintaining data
+- You can disconnect the volume from the EC2 instance and the data remains on the volume
 - You can implement encryption on these volumes and take backup snapshots of all data on the volumes
 
 > The data on EBS volumes are automatically replicated to other EBS volumes within the same availibilty zone for resiliency which is managed by AWS
@@ -167,6 +168,8 @@ Two types of storage:
 - When the instance is stopped or terminated, all saved data on disk is lost
 - However, if you reboot your data will remain intact
 - Unlike EBS volumes, you're unable to detach instance store volumes from the instance
+
+> AWS Instance Store Volumes are hosted by EC2 instances themselves
 
 ### Security
 
@@ -211,7 +214,7 @@ Responsible for patching and scaling your instances and you can specify instance
 
 ### Monitoring containers
 
-Can be taken care of through Amazon CloudWatch. You can easily create alarms based off of these metrics, providing you notification when specific events occur, such as your cluster size scaling up or down
+Can be taken care of through Amazon CloudWatch. You can easily create alarms based off of these metrics, providing you notifications when specific events occur, such as your cluster size scaling up or down
 
 ### Amazon ECS Cluster
 
@@ -222,12 +225,12 @@ Features such as Security Groups, Elastic Load Balancing, and Auto Scaling can b
 These instances still operate in much the same way as a single EC2 instance
 
 - Clusters act as a resource pool, aggregating resources such as CPU and memory
-- Clusters are dynamically scalable and mjultiple instances can be used
+- Clusters are dynamically scalable and multiple instances can be used
 - Clusters can only scale in a single region
-- Containers can be scheduled to be deployed across yoru cluster
+- Containers can be scheduled to be deployed across your cluster
 - Instances within the cluster also have a Docker daemon and an ECS agent
 
-> ECS agents communicate with eachother allowing ECS commands to be translated into Docker commands
+> ECS agents communicate with each other allowing ECS commands to be translated into Docker commands
 
 ## Elastic Container Registry (ECR)
 
@@ -249,9 +252,9 @@ Components used in ECR:
 
 Allows you to host and store docker images as well as create image repos.
 
-Your account will have both read and write access by default to any i mages you create within the registry and any repos.
+Your account will have both read and write access by default to any images you create within the registry and any repos.
 
-Access for your registry and images can be controlled via *IAM policies* in addition to *repository policies*.
+Access for your registry and images can be controlled via **IAM policies** in addition to **repository policies**.
 
 Before your docker client can access your registry it needs to be authenticated as an AWS user via an Authorization token.
 
@@ -265,7 +268,7 @@ This will produce an output response which will be a docker login command
 
 ```bash
 docker login -u AWS -p {password}
-https://{aws_account_id.dkr.ecr.{region}.amazonaws.com
+https://{aws_account_id}.dkr.ecr.{region}.amazonaws.com
 ```
 
 This process produces an authorization token that can be used within the registry for 12 hours
@@ -297,17 +300,17 @@ There a number of different IAM managed policies to help you control access to E
 
 Once you have configured your registry, repositories and security controls, and authenticated your docker client with ECR, you can then begin storing your docker images in the required repositories
 
-To push and p image into ECR, you can use the `docker push` command, and to retrieve an image you can use the docker pull command
+To push and publish image into ECR, you can use the `docker push` command, and to retrieve an image you can use the docker pull command
 
 ## Elastic Container Service for Kubernetes (EKS)
 
-Kubernetes is an open-source container orchestration tool designed to automate, deploy, scale, and operate containerized qpplications
+Kubernetes is an open-source container orchestration tool designed to automate, deploy, scale, and operate containerized applications
 
 It can grow from tens, thousands, or even millions of containers
 
 It is container-runtime agnostic which means you can use K8s to run Rocket and Docker images
 
-AWS provides a managed service allowing you to run **run Kubernetes across your AWS Infrastructure** without having to take care of provisioning and running the Kubernetes management infrastructure in what's referred to as **the control plane**
+AWS provides a managed service allowing you to **run Kubernetes across your AWS Infrastructure** without having to take care of provisioning and running the Kubernetes management infrastructure in what's referred to as **the control plane**
 
 You only need to provision and maintain the **worker nodes**
 
@@ -317,7 +320,7 @@ There are a number of different components that make up the control plane and th
 
 The control plane schedules containers onto nodes
 
-The control plane also tracks teh state of all K8s objects by continually monitoring the objects
+The control plane also tracks the state of all K8s objects by continually monitoring the objects
 
 In EKS, AWS is responsible for provisioning, scaling and managing the control plane, and they do this by utilizing multiple availability zones for additional resilience
 
@@ -352,7 +355,7 @@ The IAM-Authenticator is required to authenticate with the EKS cluster
 4. Create your EKS Cluster
 You can now create your EKS cluster using the details and info from the VPC created in step 1 and 2
 
-5. Configure kkubectl for EKS
+5. Configure kubectl for EKS
 Using the `update-kubeconfig` command via the AWS CLI you need to create a kubeconfig file for your EKS cluster
 
 6. Provision and configure Worker Nodes
@@ -393,7 +396,8 @@ It's able to operate with a variety of platforms and programming languages:
 - Ruby
 
 **The service itself is free to use**
-There is no cost associated with Elastic Beanstalk. However, any resources that are created on your application's behalf, such as EC2 instances, you will be charged for as per the standard pricing policies at the time of deployment.
+
+There is no cost associated with Elastic Beanstalk. However, for any resources that are created on your application's behalf (such as EC2 instances), you will be charged for as per the standard pricing policies at the time of deployment.
 
 ### Elastic Beanstalk Core Components
 
@@ -402,6 +406,8 @@ There is no cost associated with Elastic Beanstalk. However, any resources that 
 An application version is a very specific reference to a section of deployable code
 
 The application version will point typically to S3, simple storage service to where the deployable code may reside
+
+> With Elastic Beanstalk, applications can have many versions and each application version is unique
 
 #### Environment
 
@@ -466,7 +472,7 @@ If the management of your applications have altered the environment configuratio
 
 ## AWS Lambda
 
-A serverless compute service that allows you to run your app code wihtout having to manage EC2 instances.
+A serverless compute service that allows you to run your app code without having to manage EC2 instances.
 
 **Serverless** means that you do not need to worry about provisioning and managing your own computer resource to run your own code, instead this is managed and provisioned by AWS.
 
@@ -474,7 +480,7 @@ The service does require compute power to carry out your code requests, but beca
 
 You only ever have to pay for compute power when Lambda is in use via Lambda Functions.
 
-AWS Lambda charges computer power per 100ms of use only when your code is running, in addition to the number of ties your code runs.
+AWS Lambda charges computer power per 100ms of use only when your code is running, in addition to the number of tiers your code runs.
 
 ### Working with AWS Lambda
 
@@ -489,7 +495,7 @@ There are essentially 4 steps to its operations:
 
 **Lambda Function** is compiled of your own code that you want Lambda to invoke as per defined triggers.
 
-**Event sources** are AWS services that can be used to trigger your Lambda functions.
+**Event sources** are AWS services that Lambda monitors for specific operations that can trigger your Lambda functions.
 
 **Trigger** is essentially an operation from an event source that causes the function to invoke (like a PUT request).
 
@@ -514,7 +520,7 @@ Ex: specifying the S3 bucket for your function
 Upload code or edit it in-line
 Define the required resources, maximum execution timeout, IAM Role and Handler Name
 
-> AWS Lambda is a highly scalable serverless service, coupled with fantastic cost optimization compared to EC2 as you are only charged for Computer power while the code is running and for the number of cuntions called.
+> AWS Lambda is a highly scalable serverless service, coupled with fantastic cost optimization compared to EC2 as you are only charged for Computer power while the code is running and for the number of functions called.
 
 ## AWS Batch
 
@@ -530,7 +536,7 @@ There are 5 components that make up AWS Batch Service:
 
 ### Jobs
 
-A Job is classed as a unit of work tha tis to be run by AWS Batch.
+A Job is classed as a unit of work that is to be run by AWS Batch.
 
 - Can be an executable file, an app within an ECS Cluster, or a shell script.
 - Run on EC2 instances as a containerized application
@@ -542,7 +548,7 @@ These define specific parameters for the Jobs themselves and dictate how the Job
 
 Some examples may be:
 
-- How many vCPUs to use for hte container
+- How many vCPUs to use for the container
 - Which data volumes hsould be used
 - Which IAM role should be used to allow access for AWS Batch to communicate with other AWS services
 - Mount points

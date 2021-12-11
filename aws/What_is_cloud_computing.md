@@ -43,3 +43,4 @@ Allows for multiple VMs in one phsyical server. No crossover- VMs are unaware of
 - Network Access Controll Lists (Security)
 - Network Address Translation
 -- Classic environment comparision: Routers/Switches/Firewalls
+
