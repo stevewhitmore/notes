@@ -59,9 +59,22 @@ Split up into Relational and Non-relational Databases
 
 ### Relational Databases
 
+#### Amazon relational database service (RDS)
+
+Takes care of backups and patches
+
 Structured tables <- generally support -> Structured Query Language (SQL) operations
 
 A database view is basically a saved select statement. Tables are linked together via joining on common fields and they generate a temporary view. This processing is done by the RDBMS script engine which means a relational database is generally quite complex and requires a lot of computing resources. This means generally the software footprint for relational databases are bigger than for non-relational.
+
+#### Database engines
+
+- MySQL
+- MariaDB (Community developed sql
+- PostreSQL
+- Amazon Aurora (AWS fork of mysql)
+- Oracle (commonly used in corporate because they enjoy pain)
+- SQL Server (Microsoft)
 
 ### Non Relational Databases
 
