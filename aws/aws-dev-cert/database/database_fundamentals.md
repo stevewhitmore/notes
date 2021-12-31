@@ -63,9 +63,34 @@ Split up into Relational and Non-relational Databases
 
 Takes care of backups and patches
 
+Uses storage autoscaling by utilizing Elastic Block Storage (EBS) with the exception of Amazon Aurora which uses Shared Cluster Storage architecture.
+
 Structured tables <- generally support -> Structured Query Language (SQL) operations
 
 A database view is basically a saved select statement. Tables are linked together via joining on common fields and they generate a temporary view. This processing is done by the RDBMS script engine which means a relational database is generally quite complex and requires a lot of computing resources. This means generally the software footprint for relational databases are bigger than for non-relational.
+
+#### Storage types
+
+##### General Purpose SSD Storage
+- Good option for broad range of use cases
+- Provides single-digit millisecond latencies
+- Cost effective
+- SSD storage for primary data
+    - Minimum 20GiB
+    - Maximum 64TiB (SQL Server 16 TiB)
+
+##### Provisioned IOPS (SSD) Storage
+- Good for workloads that operate at a very high I/O
+- **IOPS:** Minimum 8,800, max 80,000 (SQL Server 40,000)
+- **Storage for primary data:** Minimum 100GiB, max 64TiB (SQL Server 16TiB)
+
+##### Magnetic Storage
+Provided for backwards compatibility. AWS recommends General Purpose instead.
+
+##### Shared Cluster Storage
+- Aurora uses this
+- The option to configure and select storage options does not exist
+- Your storage will scale automatically as your database grows
 
 #### Database engines
 
