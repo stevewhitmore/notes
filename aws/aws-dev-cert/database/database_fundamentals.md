@@ -1,5 +1,7 @@
 # Database Fundamentals for AWS
 
+> **There's good info in here but it's slightly dated. See notes in this directory pertaining to the specific services**
+
 ## What is a Cloud Database?
 
 RDS - Availability and Durability
