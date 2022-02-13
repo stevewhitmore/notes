@@ -1,17 +1,36 @@
-<<<<<<< HEAD
 # Fefora 
 
 For Fedora-specific good-to-knows.
 
 ## DNF
 
-## Safe dnf update
+### Safe dnf update
 
 There's a risk with `dnf update` from a graphical terminal session.. This almost always works fine, but in extremely rare cases it can destroy your operating system. This can happen when a process in the desktop environment crashes while the update is running. To safely run dnf update without worry, switch to a virtual terminal `Ctrl+Alt+F3` and run it there, where it doesn't stand any risk of being killed mid-operation. Use `Ctrl+Alt+F2` to return to your desktop. Other online updaters, like `apt-get`, are no different; this advice applies to any program that you can use to update your system.
 
 ### When to reboot after update
 
 Install `dnf-plugin-tracer` to have dnf show what needs restarting after every transaction. It's much faster and friendlier than `needs-restarting`.
+
+### Installing older packages
+
+Downgrade to the last package release by running `dnf downgrade <package>`.
+
+To find a specific older version (assuming it's still available in the repository) run `dnf --showduplicates list <package>`.
+
+If a package needs to be ignored during upgrade time, edit `/etc/dnf/dnf.conf` and add `exclude=package_names package_name_pattern`.
+
+## Updating everything
+
+Gnome-software has gotten better but is still really slow in most cases and unreliable sometimes. Best bet is to do the following:
+
+1. Launch virtual terminal
+2. Run `dnf update`. 
+    1. Note the incoming changes and type `y` followed by `<enter>`
+    2. Note whether a reboot is needed
+4. Run `flatpak update`
+5. Run `fwupdmgr refresh` followed by `fwupdmgr update`
+
 
 ## Misc
 
