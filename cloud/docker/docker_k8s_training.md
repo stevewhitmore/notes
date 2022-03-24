@@ -197,11 +197,34 @@ Volumes persist if a container shuts down. If a container (re)starts and mounts 
 
 Managed via `docker volume` commands.
 
-Anonymous volumes are created if your Dockerfile only specifies the path for the volume `VOLUME [ "/app/feedback" ]`. Docker sets up a folder or path on your host machine, exact location is unknown to you. These are deleted when the container stops, so they're not great for persisting data.
+Anonymous volumes are created if your Dockerfile only specifies the path for the volume `VOLUME [ "/app/feedback" ]`. Docker sets up a folder or path on your host machine; exact location is unknown to you. These are deleted when the container stops, so they're not great for persisting data.
 
-Named volumes are great for data which should be persistent but which you don't need to edit directly. They remain after a container is removed.
+Named volumes are great for data which should be persistent but you don't need to edit directly. They remain after a container is removed.
 
 Running a container with `-v local/path:container/path` is the trick. As long as a new container points to the same named volume the data will persist. 
 
-`docker run -d -p 3000:80 --rm --name feedback-foo -v feedback:/app/feedback feedback-node:volumes`
+`docker run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback feedback-node:volumes`
 
+### Bind Mounts
+
+Similar to Volumes but you define a folder/path on your host machine. Bind Mounts are perfect for development because instead of copying a snapshot of the code it syncs your changes to the code without you needing to stop, build again, run a new container based off that new build. Named Volumes are good for persisting data but are no good for ongoing development because you have no idea where the local copy is stored.
+
+You can set up Bind Mounts by adding another `-v` flag and point to the absolute path for your local directory:
+
+`docker -run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -f "/full/path/to/local/project:/app" feedback-node:volumes`
+
+> You don't have to write out the full path. Use `-v $(pwd):/app` for sanity
+
+The syntax of the second `-v` flag means you're copying all contents of that folder to the container's `/app` folder.
+
+This renders the following steps in the Dockerfile moot:
+
+```yaml
+COPY package.json .
+
+RUN npm instal
+
+COPY . .
+```
+
+This is because the second `-v` flag overwrites everything in the container's `/app` folder.
