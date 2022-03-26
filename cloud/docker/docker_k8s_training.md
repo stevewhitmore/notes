@@ -211,7 +211,7 @@ Similar to Volumes but you define a folder/path on your host machine. Bind Mount
 
 You can set up Bind Mounts by adding another `-v` flag and point to the absolute path for your local directory:
 
-`docker -run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -f "/full/path/to/local/project:/app" feedback-node:volumes`
+`docker -run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -f\v "/full/path/to/local/project:/app" feedback-node:volumes`
 
 > You don't have to write out the full path. Use `-v $(pwd):/app` for sanity
 
