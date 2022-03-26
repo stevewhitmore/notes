@@ -222,7 +222,7 @@ This renders the following steps in the Dockerfile moot:
 ```yaml
 COPY package.json .
 
-RUN npm instal
+RUN npm install
 
 COPY . .
 ```
