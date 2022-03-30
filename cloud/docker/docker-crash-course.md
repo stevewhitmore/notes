@@ -1,4 +1,40 @@
-# Docker & Kubernetes: The Practical Guide [2022 Edition]
+# Docker Crash Course
+
+From Udemy's [Docker & Kubernetes: The Practical Guide (2022 Edition)](https://www.udemy.com/course/docker-kubernetes-the-practical-guide/)
+
+- [The Basics](#the-basics)
+  * [Virtual Machines vs Virtual Operating Systems](#virtual-machines-vs-virtual-operating-systems)
+  * [Docker Tools & Building Blocks](#docker-tools--building-blocks)
+  * [Dockerfile vs Docker Compose](#dockerfile-vs-docker-compose)
+    + [Dockerfile](#dockerfile)
+    + [Docker Compose](#docker-compose)
+- [Docker Images & Containers](#docker-images--containers)
+  * [Managing Images & Containers](#managing-images--containers)
+    + [Images](#images)
+    + [Containers](#containers)
+    + [Attached and Detached states](#attached-and-detached-states)
+    + [Entering interactive mode](#entering-interactive-mode)
+    + [Deleting images and containers](#deleting-images-and-containers)
+    + [Copying to and from a container](#copying-to-and-from-a-container)
+    + [Naming & Tagging Containers and Images](#naming--tagging-containers-and-images)
+    + [Sharing Image & Containers](#sharing-image--containers)
+      - [Pushing to Dockerhub](#pushing-to-dockerhub)
+      - [Pulling from docker](#pulling-from-docker)
+- [Managing Data & Working with Volumes](#managing-data--working-with-volumes)
+  * [Types of data](#types-of-data)
+    + [Application](#application)
+    + [Temporary](#temporary)
+    + [Permanent](#permanent)
+  * [Volumes](#volumes)
+  * [Two types of external data storages](#two-types-of-external-data-storages)
+  * [Bind Mounts](#bind-mounts)
+    + [Summing up Anonymous/Named Volumes vs Bind Mounts](#summing-up-anonymous-named-volumes-vs-bind-mounts)
+  * [Read-Only Volumes](#read-only-volumes)
+  * [Managing Volumes](#managing-volumes)
+  * [.dockerignore](#dockerignore)
+  * [Working with Environment Variables & Files](#working-with-environment-variables--files)
+  * [Using build arguments (ARG)](#using-build-arguments--arg-)
+- [Networking & Cross-Container Communication](#networking--cross-container-communication)
 
 ## The Basics
 
@@ -211,7 +247,7 @@ Similar to Volumes but you define a folder/path on your host machine. Bind Mount
 
 You can set up Bind Mounts by adding another `-v` flag and point to the absolute path for your local directory:
 
-`docker -run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -f\v "/full/path/to/local/project:/app" feedback-node:volumes`
+`docker -run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -v "/full/path/to/local/project:/app" feedback-node:volumes`
 
 > You don't have to write out the full path. Use `-v $(pwd):/app` for sanity
 
@@ -222,9 +258,117 @@ This renders the following steps in the Dockerfile moot:
 ```yaml
 COPY package.json .
 
-RUN npm install
+RUN npm instal
 
 COPY . .
 ```
 
 This is because the second `-v` flag overwrites everything in the container's `/app` folder.
+
+#### Summing up Anonymous/Named Volumes vs Bind Mounts
+
+```bash
+docker run -v /app/data ... # Anonymous Volume
+docker run -v data:/app/data ... # Named Volume
+docker run -v /path/to/code:/app/code ... # Bind Mount
+```
+
+Anonymous Volumes
+- Created specifically for a single container
+- Survives container shutdown/restart unless --rm is used
+- Cannot be shared across containers
+- Since it's anonymous, it can't be re-used (even on same image)
+
+Named Volumes
+- Created in general - not tied to any specific container
+- Survives container shutdown/restart - removal via Docker CLI
+- Can be shared across congtainers
+- Can be reused for same container (across restarts)
+
+Bind Mounts
+- Location on host file syustem, not tied to any specific container
+- Survives container shutdown/restart - removal on host fs
+- Can be shared across containers
+- Can be reused for same container (across restarts)
+
+### Read-Only Volumes
+
+We can enforce read-only on a container level by adding `:ro` to the end of the container path. We'll still be able to write from the local fs but not from the container:
+
+```bash
+docker run -d --rm -p 3000:80 --name feedback-app -v feedback:/app/feedback -v "$(pwd):/app:ro" -v /app/node_modules -v feedback-node:volumes
+```
+
+### Managing Volumes
+
+View the volumes created with `docker volume ls`. This shows the volumes but NOT the bind mounts, because bind mounts are managed by the user, not Docker.
+
+The volumes are created automatically with the `-v` flag, so it's not usually necessary to manually create them with `docker volume create`.
+
+Volumes in use cannot be removed. You need to stop the container using the volume before it can be removed. You can get rid of unused volumes with `docker volume prune`.
+
+If a volume is removed, the data in it will be lost. Recreating one with the same name will not bring back the data.
+
+### .dockerignore
+
+Acts like `.gitignore` but for docker. In general, you want to add anything which isn't required by your application to execute correctly (such as `Dockerfile` or `.git`).
+
+### Working with Environment Variables & Files
+
+Docker supports build-time ARGuments and runtime ENVironment variables
+
+ARG:
+- Available inside of Dockerfile, NOT accessible in CMD or any application code
+- Set an iamge build (docker build) via --build-arg
+
+ENV:
+- Available inside of Dockerfile and in application code
+- Set via ENV in Dockerfile or via `--env` or `-e` on docker run
+
+```yaml
+ENV PORT 80 # This will be accessible from within the application
+
+EXPOSE $PORT
+```
+
+You can also point to a file to define environment variables
+
+*.env*
+
+```
+PORT=8000
+```
+
+`docker run -d -p 3000:8000 --env-file ./.env ...`
+
+This is advantageous because it allows you to run the same command over and over and you only need to update a file if vars need to change.
+
+> One important note about environment variables and security: Depending on which kind of data you're storing in your environment variables, you might not want to include the secure data directly in your Dockerfile.
+> 
+> Instead, go for a separate environment variables file which is then only used at runtime (i.e. when you run your container with docker run).
+>
+> Otherwise, the values are "baked into the image" and everyone can read these values via docker history <image>.
+> 
+> For some values, this might not matter but for credentials, private keys etc. you definitely want to avoid that!
+>
+> If you use a separate file, the values are not part of the image since you point at that file when you run docker run. But make sure you don't commit that separate file as part of your source control repository, if you're using source control.
+
+### Using build arguments (ARG)
+
+```yaml
+ARG DEFAULT_PORT=80
+
+ENV PORT $DEFAULT_PORT
+
+EXPOSE $PORT
+```
+
+## Networking & Cross-Container Communication
+
+Containers can commiunicate with the www out of the box.
+
+Instead of using `localhost` when talking to another service on the same machine, use `host.docker.internal` if a domain is needed. This will be recognized by Docker as a service on the host machine.
+
+Point to the IP address of the other container. To find out the IP address run `docker container inspect <container name>`. You will also need to point to the port which can be found in the same output as the inspect command or `docker ps -a` with the port being listed next to the name of the container.
+
+
