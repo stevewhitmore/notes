@@ -2,43 +2,49 @@
 
 From Udemy's [Docker & Kubernetes: The Practical Guide (2022 Edition)](https://www.udemy.com/course/docker-kubernetes-the-practical-guide/)
 
-- [The Basics](#the-basics)
-  * [Virtual Machines vs Virtual Operating Systems](#virtual-machines-vs-virtual-operating-systems)
-  * [Docker Tools & Building Blocks](#docker-tools--building-blocks)
-  * [Dockerfile vs Docker Compose](#dockerfile-vs-docker-compose)
-    + [Dockerfile](#dockerfile)
-    + [Docker Compose](#docker-compose)
-- [Docker Images & Containers](#docker-images--containers)
-  * [Managing Images & Containers](#managing-images--containers)
-    + [Images](#images)
-    + [Containers](#containers)
-    + [Attached and Detached states](#attached-and-detached-states)
-    + [Entering interactive mode](#entering-interactive-mode)
-    + [Deleting images and containers](#deleting-images-and-containers)
-    + [Copying to and from a container](#copying-to-and-from-a-container)
-    + [Naming & Tagging Containers and Images](#naming--tagging-containers-and-images)
-    + [Sharing Image & Containers](#sharing-image--containers)
-      - [Pushing to Dockerhub](#pushing-to-dockerhub)
-      - [Pulling from docker](#pulling-from-docker)
-- [Managing Data & Working with Volumes](#managing-data--working-with-volumes)
-  * [Types of data](#types-of-data)
-    + [Application](#application)
-    + [Temporary](#temporary)
-    + [Permanent](#permanent)
-  * [Volumes](#volumes)
-  * [Two types of external data storages](#two-types-of-external-data-storages)
-  * [Bind Mounts](#bind-mounts)
-    + [Summing up Anonymous/Named Volumes vs Bind Mounts](#summing-up-anonymous-named-volumes-vs-bind-mounts)
-  * [Read-Only Volumes](#read-only-volumes)
-  * [Managing Volumes](#managing-volumes)
-  * [.dockerignore](#dockerignore)
-  * [Working with Environment Variables & Files](#working-with-environment-variables--files)
-  * [Using build arguments (ARG)](#using-build-arguments--arg-)
-- [Networking & Cross-Container Communication](#networking--cross-container-communication)
+- [Docker Crash Course](#docker-crash-course)
+  * [The Basics](#the-basics)
+    + [Virtual Machines vs Virtual Operating Systems](#virtual-machines-vs-virtual-operating-systems)
+    + [Docker Tools & Building Blocks](#docker-tools---building-blocks)
+    + [Dockerfile vs Docker Compose](#dockerfile-vs-docker-compose)
+      - [Dockerfile](#dockerfile)
+      - [Docker Compose](#docker-compose)
+  * [Docker Images & Containers: The Core Building Blocks](#docker-images---containers--the-core-building-blocks)
+    + [Managing Images & Containers](#managing-images---containers)
+      - [Images](#images)
+      - [Containers](#containers)
+      - [Attached and Detached states](#attached-and-detached-states)
+      - [Entering interactive mode](#entering-interactive-mode)
+      - [Deleting images and containers](#deleting-images-and-containers)
+      - [Copying to and from a container](#copying-to-and-from-a-container)
+      - [Naming & Tagging Containers and Images](#naming---tagging-containers-and-images)
+      - [Sharing Image & Containers](#sharing-image---containers)
+        * [Pushing to Dockerhub](#pushing-to-dockerhub)
+        * [Pulling from docker](#pulling-from-docker)
+  * [Managing Data & Working with Volumes](#managing-data---working-with-volumes)
+    + [Types of data](#types-of-data)
+      - [Application](#application)
+      - [Temporary](#temporary)
+      - [Permanent](#permanent)
+    + [Volumes](#volumes)
+    + [Two types of external data storages](#two-types-of-external-data-storages)
+    + [Bind Mounts](#bind-mounts)
+      - [Summing up Anonymous/Named Volumes vs Bind Mounts](#summing-up-anonymous-named-volumes-vs-bind-mounts)
+    + [Read-Only Volumes](#read-only-volumes)
+    + [Managing Volumes](#managing-volumes)
+    + [.dockerignore](#dockerignore)
+    + [Working with Environment Variables & Files](#working-with-environment-variables---files)
+    + [Using build arguments (ARG)](#using-build-arguments--arg-)
+  * [Networking & Cross-Container Communication](#networking---cross-container-communication)
+    + [Container Networks](#container-networks)
+    + [Docker Network Drivers](#docker-network-drivers)
+  * [Building Multi-Container Applications](#building-multi-container-applications)
+    + [Adding Data Persistence to MongoDB with Volumes](#adding-data-persistence-to-mongodb-with-volumes)
+  * [Using Docker Compose for Multi-Container Orchestration](#using-docker-compose-for-multi-container-orchestration)
+  * [Working with Utility Containers & Executing Commands In Containers](#working-with-utility-containers---executing-commands-in-containers)
+    + [Executing Commands](#executing-commands)
 
 ## The Basics
-
-Course on Udemy - https://naic.udemy.com/course/docker-kubernetes-the-practical-guide
 
 Docker is a container technology: A tool for creating and managing containers.
 
@@ -233,7 +239,7 @@ Volumes persist if a container shuts down. If a container (re)starts and mounts 
 
 Managed via `docker volume` commands.
 
-Anonymous volumes are created if your Dockerfile only specifies the path for the volume `VOLUME [ "/app/feedback" ]`. Docker sets up a folder or path on your host machine; exact location is unknown to you. These are deleted when the container stops, so they're not great for persisting data.
+Anonymous volumes are created if your Dockerfile only specifies the path for the volume `VOLUME [ "/app/feedback" ]`. Docker sets up a folder or path on your host machine; exact location is unknown to you. These are deleted when the container is deleted, so they're not great for persisting data.
 
 Named volumes are great for data which should be persistent but you don't need to edit directly. They remain after a container is removed.
 
@@ -290,6 +296,9 @@ Bind Mounts
 - Survives container shutdown/restart - removal on host fs
 - Can be shared across containers
 - Can be reused for same container (across restarts)
+
+Internal container paths take precedence so for `-v $(pwd):/app` your local changes will overwrite the container's files, where as `-v logs:/app/logs` your local will not. If you have a situation like
+you don't have `node_modules` locally but you do in the container, you can add an anonymous volume to protect the folder in the container `-v /app/node_modules`.
 
 ### Read-Only Volumes
 
@@ -370,5 +379,210 @@ Containers can commiunicate with the www out of the box.
 Instead of using `localhost` when talking to another service on the same machine, use `host.docker.internal` if a domain is needed. This will be recognized by Docker as a service on the host machine.
 
 Point to the IP address of the other container. To find out the IP address run `docker container inspect <container name>`. You will also need to point to the port which can be found in the same output as the inspect command or `docker ps -a` with the port being listed next to the name of the container.
+
+### Container Networks
+
+Within a Docker network, all containers can commuincate with each other and IPs are automatically resolved.
+
+They need to be manually set up (unlike volumes). `docker network create <network name>` and then you can run a container with it `docker run <options> --network <network name>`.
+
+If more than one container are part of the same network, you can plug in the name of the container for the domain when trying to connect. Example:
+
+Say you want to connect a node app to a mongodb instance. You can put the mongodb instance in a container and change the node code to the following:
+
+```javascript
+mongoose.connect(
+  'mongodb://mongodb-instance:27017/swfavorites',
+  { useNewUrlParser: true },
+  (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      app.listen(3000);
+    }
+  }
+);
+```
+
+Followed by the below commands:
+
+```bash
+docker network create favorites-net
+docker run -d --name mongodb-instance --network favorites-net mongo
+docker run -d -p 3000:3000 --rm --name favorites --network favorites-net favorites-node
+```
+
+> There's no need to expose ports if you're using a container network. It's only needed if you're trying to connect to the container from outside the container (like from local machine) or container network.
+> This is mostly helpful for server-side microservices. If you have a backend service talking with a frontend app, you'll need to expose ports to the frontend app since it runs in a browser and you'll need to
+> expose ports for the backend because the browser will make requests to it. You can use a container network AND expose ports in this case.
+
+> When using a container network or host.docker.internal, Docker will **NOT replace your source code.** It semply detects outgoing requests and resolves the IP for such requests.
+
+### Docker Network Drivers
+
+Docker Networks actually support different kinds of "Drivers" which influence the behavior of the Network.
+
+The default driver is the "bridge" driver - it provides the behavior shown in this module (i.e. Containers can find each other by name if they are in the same Network).
+
+The driver can be set when a Network is created, simply by adding the `--driver` option.
+
+```bash
+docker network create --driver bridge my-net
+```
+
+Of course, if you want to use the "bridge" driver, you can simply omit the entire option since "bridge" is the default anyways.
+
+Docker also supports these alternative drivers - though you will use the "bridge" driver in most cases:
+
+- host: For standalone containers, isolation between container and host system is removed (i.e. they share localhost as a network)
+- overlay: Multiple Docker daemons (i.e. Docker running on different machines) are able to connect with each other. Only works in "Swarm" mode which is a dated / almost deprecated way of connecting multiple containers
+- macvlan: You can set a custom MAC address to a container - this address can then be used for communication with that container
+- none: All networking is disabled.
+- Third-party plugins: You can install third-party plugins which then may add all kinds of behaviors and functionalities
+
+As mentioned, the "bridge" driver makes most sense in the vast majority of scenarios.
+
+## Building Multi-Container Applications
+
+### Adding Data Persistence to MongoDB with Volumes
+
+Look up where MongoDB stores things and then created a named volume for it `docker run --name mongodb -v data:/data/db --rm -d --network goals-net mongo`.
+
+You can add credentials by using environment variables.
+
+The rest of this section was rehashing what was already taught above.
+
+## Using Docker Compose for Multi-Container Orchestration
+
+Great for managing multiple containers on the same host. You can build and run with a single command as well as stop with a single command.
+
+Docker compose is NOT:
+
+- A replacement for Dockerfiles for custom images
+- A replacement for images or containers
+- Suited for managing multiple containers on different hosts
+
+Compose files must define services (a.k.a. containers) and also define published ports, environment variables, volumes, and networks.
+
+*docker-compose.yaml*  
+
+```yaml
+version: "3.8" # This is the version of the docker compose specification we want to use, NOT the app.
+services:
+  mongodb:
+    image: "mongo"  # This is a premade image from Dockerhub so no need to build
+    volumes:
+      - data:/app/data
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME: foo  # Can also use the syntax MONGO_INITDB_ROOT_USERNAME=foo
+    #   - MONGO_INITDB_ROOT_password: password 
+    env_file:
+      - ./env/mongo.env  # This needs the "key=value" syntax rather than "key: value"
+    # networks:  # You can specify your network, but Docker will do this automatically with compose. Specifying will add this service to both this and the auto-generated network
+    #   - goals-net
+  backend:
+    build: ./backend  # Point to the folder where the Dockerfile is. Short form.
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile-dev  # Only needed if named something other than "Dockerfile"
+    #   args:
+    #     some-arg: 1
+    ports:
+      - "80:80"  # Can expose multiple ports per container
+    volumes:
+      - logs:/app/logs
+      - ./backend:/app  # Relative paths allowed for bind mounts in a compose file
+      - /app/node_modules
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb
+  frontend:
+    build: ./frontend
+    ports: 
+      - '3000:3000'
+    volumes: 
+      - ./frontend/src:/app/src
+    stdin_open: true  # the "-i" in the "docker run" command
+    tty: true  # the "-t" in the "docker run" command
+    depends_on: 
+      - backend
+
+# If you have named volumes you need to add volumes to the top level and specify the name with no value. It's a thing Docker needs to recognize named volumes.
+# You can share the volume between containers if you specify i8t for each service.
+# Anonymous volumes and bind mounts dont need to be specified here.
+volumes:
+  data:
+  logs:
+```
+
+By default the `--rm` flag applies when using `docker compoase`.
+
+You still need to add the `-d` flag to run in detached mode: `docker-compose up -d`.
+
+The `docker-compose down` command will NOT remove volumes. For that you need to run `docker-compose down -v`.
+
+You can use docker-compose to just build but not run by using `docker-compose build`.
+
+If you want docker-compose to build a fresh image you can force it with the `--build` flag. That's for when you have an existing image but maybe have had a code change since the last build. `docker-compose up --build`.
+
+You can also force a container name through the yaml file by using `container_name`:
+
+```yaml
+...
+services:
+    mongodb:
+        image: "mongo"
+        volumes:
+            - data:/data/db
+        container_name: mongodb
+
+    ...
+```
+
+This will cause the container to be named "mongodb" instead of the auto-generated name "project-name_mongodb_01".
+
+## Working with Utility Containers & Executing Commands In Containers
+
+A container with an environment but no application. Useful for setting up a dev environment without having to install a bunch of stuff on your host machine.
+- Use a bind mount to save files from the container to the local machine. You could make a super slim node image, run `npm init`, and have the newly generated package.json file appear in your local directory.
+
+### Executing Commands
+
+`docker exec -it <container name> <command>`
+
+To "ssh" into a container, simply run `docker exec -it <container name> /bin/bash`.
+
+Using `ENTRYPOINT` is very similar to `CMD` in the Docker file. The main difference being that if you use `CMD`, you can override the default `CMD` by adding it to the end of the command `docker run -it node npm init`.
+With `ENTRYPOINT` whatever you add to the end of your run command is appended to whatever's inside ENTRYPOINT.
+
+Example:
+
+```yaml
+FROM node:14-alpine
+
+WORKDIR /app
+
+ENTRYPOINT [ "npm" ]
+```
+
+Then you can run whatever npm command you want with the run command: `docker run -it -v $(pwd):/app myimage init` will run `npm init` on startup.
+
+We can do this with `docker-compose`:
+
+```yaml
+version: "3.8"
+services:
+    node:
+        build: ./
+        stdin_open: true
+        tty: true
+        volumes:
+            - ./:/app
+```
+
+The command you'd use is `docker-compose run npm init`.
+
+> **NOTE**: Containers will not be removed if you use `run`. You still need that `--rm` flag: `docker-compose run --rm npm init`.
 
 
