@@ -585,4 +585,90 @@ The command you'd use is `docker-compose run npm init`.
 
 > **NOTE**: Containers will not be removed if you use `run`. You still need that `--rm` flag: `docker-compose run --rm npm init`.
 
+## Deploying Docker Containers
 
+This is the key selling point of Docker. What works on your machine (in a container) will also work after deployment. Everything's exactly the same. so there are no surprises.
+
+Things to look out for:
+
+- Bind mounts shouldn't be used in Production
+- Containerized apps might need a build step (e.g. React apps)
+- Multi-container projects might need to be split (or should be split) across multiple hosts/remote machines
+- Tradeoffs between control and responsibility might be worth it
+
+Example: Deploy to AWS EC2:
+
+1. Create and launch an EC2 instance, VPC, and security group
+2. Configure security group to expose all required ports to WWW
+3. Connect to instance (SSH), install Docker, and run container
+
+### Bind Mounts, Volumes, & COPY
+
+In Development:
+
+- Containers should encapsulate the runtime environment but not necessarily the code
+- We use bind mounts to provide our local host project files to the running container
+- Allows for instant updates without restarting the container
+
+In Production:
+
+- A container should really work standalone, you should NOT have source code on your remote machine
+- Image/Container is "single source of truth"
+- Use COPY instead of bind mounts to copy a code snapshot into the image
+- Ensures that every image runs without any extra, surrounding configuration or code
+
+### Deploying to EC2
+
+After creating an EC2 instance and SSHing in you'll need to install docker.
+
+*Assuming you're using Amazon Linux:*
+
+```bash
+sudo yum update -y
+sudo amazon-linux-extras install docker
+sudo service docker start
+```
+
+#### Deploy Source Code vs Image
+
+We can either deploy the source code or the built image.
+
+Deploying source you'd push code to remote machine, run `docker build` and then `docker run`. This really isn't necessary and just creates more steps.
+
+Alternatively we can prep everything locally and get the built image to the destination without having to do anything there.
+
+#### Running & Publishing the App on EC2
+
+Once a built image is pushed to a repository you can simply do `docker run <username/image name>` to run a container based off of that image. No login required if it's a public image.
+
+You can see the public IP address under Instances in the EC2 section of the AWS console. However, by default just entering the IP address in the browser will NOT load the application. You need to update the security group first.
+
+You can see what security groups an instance has by clicking on the Security tab while viewing the instance in the AWS console. Click on the link for the security group (usually named launch-wizard-somenumber) and you'll see the security group settings. By default Inbound rules only allows SSH but Outbound is all traffic. This is why downloading the image from Dockerhub works but it wont load in the browser.
+
+Edit the Inbound rules and add one for HTTP. Only allows port 80 but that's fine. Allow any IP to access.
+
+> Be sure to run `docker pull` if you update the published image. Otherwise Docker will use the already existing image that it's using.
+
+#### Disadvantages of our Current Approach
+
+How we did this was fine but there are some downsides:
+
+- Lots of manual steps for setting it up 
+- The way we set up EC2 we fully "owned" it
+- We were responsible for it and its security 
+- Had to keep software updated and manage network/security groups firewall
+
+**A better alternative might be using a managed service, specifically ECS (Elastic Container Service).**
+Azure and GCP have equivalent services as well.
+
+However, ECS is not available for the free tier **so it will cost money**.
+
+### Deploying to ECS
+
+You'll want to use a load balancer that your domain points to and Elastic File System (EFS) Volumes to manage persisted data.
+
+### Understanding a Common Problem
+
+Some apps/projects require a build step, such as an optimization script that need sto be executed AFTER development but BEFORE deployment (e.g. Angular apps).
+
+This means the development and production setup are NOT equal. This can be a problem and works against what Docker's trying to do.
