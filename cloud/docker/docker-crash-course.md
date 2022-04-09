@@ -2,47 +2,7 @@
 
 From Udemy's [Docker & Kubernetes: The Practical Guide (2022 Edition)](https://www.udemy.com/course/docker-kubernetes-the-practical-guide/)
 
-- [Docker Crash Course](#docker-crash-course)
-  * [The Basics](#the-basics)
-    + [Virtual Machines vs Virtual Operating Systems](#virtual-machines-vs-virtual-operating-systems)
-    + [Docker Tools & Building Blocks](#docker-tools---building-blocks)
-    + [Dockerfile vs Docker Compose](#dockerfile-vs-docker-compose)
-      - [Dockerfile](#dockerfile)
-      - [Docker Compose](#docker-compose)
-  * [Docker Images & Containers: The Core Building Blocks](#docker-images---containers--the-core-building-blocks)
-    + [Managing Images & Containers](#managing-images---containers)
-      - [Images](#images)
-      - [Containers](#containers)
-      - [Attached and Detached states](#attached-and-detached-states)
-      - [Entering interactive mode](#entering-interactive-mode)
-      - [Deleting images and containers](#deleting-images-and-containers)
-      - [Copying to and from a container](#copying-to-and-from-a-container)
-      - [Naming & Tagging Containers and Images](#naming---tagging-containers-and-images)
-      - [Sharing Image & Containers](#sharing-image---containers)
-        * [Pushing to Dockerhub](#pushing-to-dockerhub)
-        * [Pulling from docker](#pulling-from-docker)
-  * [Managing Data & Working with Volumes](#managing-data---working-with-volumes)
-    + [Types of data](#types-of-data)
-      - [Application](#application)
-      - [Temporary](#temporary)
-      - [Permanent](#permanent)
-    + [Volumes](#volumes)
-    + [Two types of external data storages](#two-types-of-external-data-storages)
-    + [Bind Mounts](#bind-mounts)
-      - [Summing up Anonymous/Named Volumes vs Bind Mounts](#summing-up-anonymous-named-volumes-vs-bind-mounts)
-    + [Read-Only Volumes](#read-only-volumes)
-    + [Managing Volumes](#managing-volumes)
-    + [.dockerignore](#dockerignore)
-    + [Working with Environment Variables & Files](#working-with-environment-variables---files)
-    + [Using build arguments (ARG)](#using-build-arguments--arg-)
-  * [Networking & Cross-Container Communication](#networking---cross-container-communication)
-    + [Container Networks](#container-networks)
-    + [Docker Network Drivers](#docker-network-drivers)
-  * [Building Multi-Container Applications](#building-multi-container-applications)
-    + [Adding Data Persistence to MongoDB with Volumes](#adding-data-persistence-to-mongodb-with-volumes)
-  * [Using Docker Compose for Multi-Container Orchestration](#using-docker-compose-for-multi-container-orchestration)
-  * [Working with Utility Containers & Executing Commands In Containers](#working-with-utility-containers---executing-commands-in-containers)
-    + [Executing Commands](#executing-commands)
+[[_TOC_]]
 
 ## The Basics
 
@@ -672,3 +632,69 @@ You'll want to use a load balancer that your domain points to and Elastic File S
 Some apps/projects require a build step, such as an optimization script that need sto be executed AFTER development but BEFORE deployment (e.g. Angular apps).
 
 This means the development and production setup are NOT equal. This can be a problem and works against what Docker's trying to do.
+
+We need to build a container that's meant for the build-optimized code files, not the dev version (what we use when actively developing with `npm start`).
+
+This is when we'll likely need 2 Dockerfiles. One will need to be named something else like `Dockerfile.prod`.
+
+```yaml
+FROM node:14-alpine
+
+WORKDIR /app
+
+COPY package.json .
+
+RUN npm install
+
+COPY . .
+
+CMD [ "npm", "run", "build" ]
+```
+
+This isn't enough though. We need a server for the build files. This is where multi-stage builds come in.
+
+### Mutli-Stage Builds
+
+The above yaml can be seen as the first stage. We'll only need the node image to build but we can use a different image to serve up the files.
+
+> Every FROM instruction creates a new stage in your Docker file. Even if you use the same image as in the previous step.
+
+```yaml
+# Adding "as build" names the stage and makes it possible to copy contents from one stage to another
+FROM node:14-alpine as build
+
+WORKDIR /app
+
+COPY package.json .
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+FROM nginx:stable-alpine
+
+# The example app we're using is made with React which puts its build files in "build" instead of "dist"
+# See nginx image documentation on dockerhub. It explains the default directory which is what we're copying to below
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80  # Because port 80 is default for nginx
+
+CMD [ "nginx", "-g", "daemon off;" ]
+```
+
+If you're deployng a frontend app to the same server as your backend code you can remove "localhost" in the API request URLs.
+
+To build off of another file instead of the default Dockerfile you need the `-f` flag when running `docker build`:
+
+`docker build -f frontend/Dockerfile.prod -t academind/goals-react ./frontend`
+
+This gives the Docker engine the context in which it will be building from.
+
+We can also target build stages and only have them build by using the `--target` flag:
+
+`docker build --target build -f frontend/Dockerfile.prod -t academind/goals-react ./frontend`
+
+This will cause Docker to skip the `FROM nginx:stable-alpine` stage while building.
+
