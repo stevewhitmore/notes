@@ -32,6 +32,8 @@ It's an open source (and de-facto standard) for orchestrating container deployme
 - Scaling and load balancing
 - Management
 
+**Also known as K8s**. It's derived by replacing the eight letters of “ubernete” with the digit 8 because less typing.
+
 You can set up the Kubernetes configs via a file, pass that to some cloud provider or even your own datacenter, and you're good to go.
 
 > You can also include cloud-provider-specific settings in your Kubernetes configs which makes it all the more flexible/powerful
@@ -78,7 +80,7 @@ All of this together (Master Node and Worker Nodes) forms a Cluster. The Master 
 
 What you need to do / set up (i.e. what k8s requires):
 
-- Create teh Cluster and the Node Instances (Worker and Master Nodes)
+- Create the Cluster and the Node Instances (Worker and Master Nodes)
 - Set up API server, kubelet and other k8s services/software on Nodes
 - Create other (cloud) provider resources that might be needed (e.g. Load Balancer, Filesystems)
 
@@ -87,6 +89,8 @@ What k8s will do:
 - Create your objects (e.g. Pods) and manage them
 - Monitor Pods and re-create them, scale Pods, etc
 - Kuberenetes utilizes the provided (cloud) resource to apply your configuration/goals
+
+It's important to remember that **Kubernetes does not create resources for you**. You need to do this first and k8s will utilize it. 
 
 ### A closer look at Worker Nodes
 
@@ -120,3 +124,57 @@ The most important software in the Master Node is the **API Server**. This is th
 - **Containers:** Normal (Docker) containers
 - **Services:** A logical set (group) of Pods with unique, Pod and Container independent IP addresses
 
+## Deep Dive Into Core Concepts
+
+### Installation
+
+You need two tools to get started: kubectl and a cluster.
+
+**kubectl:** A tool for sending instructions to the cluster (e.g. a new deployment). kubectl sends commands to the Master Node which then passes them on to the Worker Nodes.
+
+You can use a tool called **Minikube** to get things going locally and creating clusters.
+
+Install the tools by following the docs:
+
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [minikube](https://minikube.sigs.k8s.io/docs/start/)
+
+Once both are installed you can verify with `kubectl cluster-info` and `minikube status`. 
+
+> You can use the Docker driver to create a cluster and this is the default for Linux machines. Run `docker ps` and you'll see a minicube container. 
+
+Minikube also provides a web interface that runs on your localhost. Run `minikube dashboard` and a new tab will open in your default browser with info about your new cluster.
+
+### Understanding Kubernetes Objects
+
+K8s works with and sees all resources as Objects. Pods, Deployments, Services, Volumes, etc are all objects.
+
+Objects can be created in two ways: **Imperatively** or **Declaratively**.
+
+#### The Pod Object
+
+The smallest "unit" k8s interacts with. They act as a tiny wrapper for containers.
+
+- Contains and runs one more multiple containers though it's most common for there to be one container per Pod.
+- Contain shared resources (e.g. volumes) for all Pod containers.
+- Has a cluster-internal IP by default
+	- Containers inside a Pod can communicate via localhost
+
+Pods are designed to be ephemeral: K8s will start, stop, and replace them as needed.
+
+For Pods to be managed for you, you need a "Controller" (e.g. a "Deployment")
+
+#### The Deployment Object
+
+Controls one or more Pods
+
+- You set a desired state, K8s then changes the actual state
+	- Define which Pods and containers to run and the number of instances
+- Deployments can be paused, deleted, and rolled back
+- Deployments can be scaled dynamically and automatically
+
+Deployments manage a Pod for you, you can also create multiple Deployments.
+
+> To clarify: One kind of Pod (e.g. a Pod with two specific containers). Multiple instances of that Pod are possible.
+
+You typically don't directly control Pods, instead you use Deployments to set up the desired end state.
