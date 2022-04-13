@@ -100,7 +100,7 @@ The Pod inside hosts one or more application containers and their resources (vol
 
 You would have Docker, kubelet, and kube-proxy installed on the Worker Node. 
 
-> A kubelete handles communication between Master and Worker Nodes
+> A kubelet handles communication between Master and Worker Nodes
 
 > A kube-proxy us used to manage Node and Pod network communication (traffic to and from the Pod and Worker Node)
 
@@ -139,9 +139,9 @@ Install the tools by following the docs:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [minikube](https://minikube.sigs.k8s.io/docs/start/)
 
-Once both are installed you can verify with `kubectl cluster-info` and `minikube status`. 
+Once both are installed you can verify with `kubectl cluster-info` and `minikube status`. The two tools work hand in hand so you can just run `kubectl` commands and Minikube will automatically be utilized.
 
-> You can use the Docker driver to create a cluster and this is the default for Linux machines. Run `docker ps` and you'll see a minicube container. 
+> You can use the Docker driver as the hypervisor to create a cluster and this is the default for Linux machines. Run `docker ps` and you'll see a minicube container. 
 
 Minikube also provides a web interface that runs on your localhost. Run `minikube dashboard` and a new tab will open in your default browser with info about your new cluster.
 
@@ -178,3 +178,169 @@ Deployments manage a Pod for you, you can also create multiple Deployments.
 > To clarify: One kind of Pod (e.g. a Pod with two specific containers). Multiple instances of that Pod are possible.
 
 You typically don't directly control Pods, instead you use Deployments to set up the desired end state.
+
+### Deployment with the Imperative Approach
+
+First you need to build your Docker image. Then you use `kubectl` to deploy your built image to your cluster. 
+
+`kubectl create deployment app-name --image=some-image-name`
+
+This isn't quite right though. It'll show a success message after creation but it'll show that the deployment failed when you check on the deployments in your cluster with `kubectl get deployments`
+
+
+```bash
+$ kubectl get deployments
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+first-app   0/1     1            0           6s
+```
+
+Check on the Pods for a more precise picture:
+
+```bash
+$ kubectl get pods
+NAME                         READY   STATUS             RESTARTS   AGE
+first-app-7cbbc8669d-tg268   0/1     ImagePullBackOff   0          2m57s
+```
+
+By default Minikube looks for images in an image registery so we'll need to pull one down.
+
+> It is possible to use a locally built image and that'll be covered a bit later
+
+Delete the Pod, create a new repository in Dockerhub (or whereever), then tag the Docker image to be pushed up.
+
+```bash
+$ kubectl delete deployment first-app                                                                                         
+deployment.apps "first-app" deleted
+$ docker tag kub-first-app stevewhitmore/kub-first-app
+$ docker push stevewhitmore/kub-first-app
+```
+
+Now it'll actually deploy successfully:
+
+```bash
+$ kubectl create deployment first-app --image=stevewhitmore/kub-first-app
+deployment.apps/first-app created
+$ kubectl get deployments
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+first-app   1/1     1            1           37s
+$ kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+first-app-8575b449bf-vr48r   1/1     Running   0          76s
+```
+
+Now would be a good time to run `minkube dashboard` to monitor your new cluster.
+
+### kubectl: Behind the Scenes
+
+`kubectl create deployment --image ...` is sent to the Master Node (Control Plane) where the Scheduler analyzes currently running Pods and finds the best Node for the new Pod(s). It sends it to the Worker Node where the kubelet manages the Pod and Containers. 
+
+#### The Service Object
+
+Exposes Pods to the Cluster or externally.
+
+- Pods have an internal IP address by default - it changes whena  Pod is replaced
+	- Finding Pods is hard if the IP changes all the time
+- Services group Pods with a shared IP
+- Services can allow external access to Pods
+	- The default (internal only) can be overwritten
+
+Without Services, Pods are very hard to reach and communication is difficult.
+
+Reaching a Pod from outside a Cluster is not possible at all wihtout Services.
+
+#### Exposing a Deployment with a Service
+
+You can expose a deployment with the following command: `kubectl expose deployment app-name --port=8080`. You can also pass in a `--type` flag which has the default value `ClusterIP`. Other choices would be `NodePort` and `LoadBalancer`.
+
+You'll see 2 services when you check. One was created by K8s with the default ClusterIP type. The other is the one we made:
+
+```bash
+$ kubectl get services
+NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+first-app    LoadBalancer   10.103.106.200   <pending>     8080:32187/TCP   13s
+kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP          4h
+```
+
+External IP would have a different value if this were deployed somewhere remote like AWS. Since we're using Minikube it has the `<pending>` value.
+
+An extra command is needed since we're using Minikube locally to expose a port to a custom local IP address: `minikube service first-app`. If no output is automatically showed you can run `minikube service list` to get the custom address (e.g. http://192.168.49.2:32187)
+
+#### Restarting Containers
+
+If a container crashes k8s will automatically restart it. We can see this with the example app we deployed `first-app` which returns an exit code 1 if the endpoint "error" is hit:
+
+```bash
+$ kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+first-app-8575b449bf-vr48r   1/1     Running   0          110m
+$ curl http://192.168.49.2:32187/error
+curl: (52) Empty reply from server
+$ kubectl get pods
+NAME                         READY   STATUS    RESTARTS     AGE
+first-app-8575b449bf-vr48r   1/1     Running   1 (5s ago)   111m
+```
+
+Each time it crashes there will be a longer delay before a restart to avoid infinite loops in case there is a container that always crashes for some reason. Saves resources that way. 
+
+#### Scaling in Action
+
+Suppose we don't have auto-scaling set up. We can manually do so by running something like `kubectl scale deployment/first-app --replicas=3`. A replica is simply an instance of a Pod/Container. 3 replicas means that the same Pod/Container is running 3 times.
+
+```bash
+$ kubectl scale deployment/first-app --replicas=3
+deployment.apps/first-app scaled
+$ kubectl get pods
+NAME                         READY   STATUS    RESTARTS      AGE
+first-app-8575b449bf-c8cmv   1/1     Running   0             4s
+first-app-8575b449bf-qh7fq   1/1     Running   0             4s
+first-app-8575b449bf-vr48r   1/1     Running   2 (11m ago)   124m
+```
+
+This is very useful because if one crashes the other 2 will keep going while the crashed one restarts.
+
+#### Updating Deployments
+
+If you have a change to some code you'll of course rebuild the image, push it up, then run 
+the `set` comand.
+
+> New images are only pulled if there is a new tag
+
+```bash
+$ docker build -t stevewhitmore/kub-first-app:2 .
+Sending build context to Docker daemon   5.12kB
+Step 1/7 : FROM node:14-alpine
+ ---> a310e5ff0582
+Step 2/7 : WORKDIR /app
+ ---> Using cache
+ ---> e75867f2c578
+Step 3/7 : COPY package.json .
+ ---> Using cache
+ ---> e61d6b9449ce
+Step 4/7 : RUN npm install
+ ---> Using cache
+ ---> bd7bf69b3e48
+Step 5/7 : COPY . .
+ ---> Using cache
+ ---> 258e32889b80
+Step 6/7 : EXPOSE 8080
+ ---> Using cache
+ ---> f550f81c3a4f
+Step 7/7 : CMD [ "node", "app.js" ]
+ ---> Using cache
+ ---> 0c57ed032282
+Successfully built 0c57ed032282
+Successfully tagged stevewhitmore/kub-first-app:2
+$ docker push stevewhitmore/kub-first-app:2
+The push refers to repository [docker.io/stevewhitmore/kub-first-app]
+c31229021370: Layer already exists 
+52968ea7d37a: Layer already exists 
+21a603489ada: Layer already exists 
+d496fe641acc: Layer already exists 
+05accea593f7: Layer already exists 
+542676b737d2: Layer already exists 
+27d39fe7f7fa: Layer already exists 
+a1c01e366b99: Layer already exists 
+2: digest: sha256:985609b9873e5af5f46e0878856f36db25752a7b23a61def1610ab486a86d6c3 size: 1989
+$ kubectl set image deployment/first-app kub-first-app=stevewhitmore/kub-first-app:2
+deployment.apps/first-app image updated
+```
