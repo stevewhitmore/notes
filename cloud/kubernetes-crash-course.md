@@ -462,3 +462,166 @@ $ minikube service list
 |----------------------|---------------------------|--------------|---------------------------|
 ```
 
+### Updating and Deleting Resources
+
+It's really easy to update resources. All you do is update the yaml file and then rerun the `kubectl apply -f=/path/to/config.yaml` command.
+
+Similarly, deleting is super easy too. Run `kubectl delete -f=/path/to/config.yaml`.
+
+### Using a Single Config File
+
+It's also perfectly acceptable to have all configs in a single file instead of multiple. You'll just need to separate the objects with three dashes `---`.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector: 
+    app: second-app
+  ports:
+    - protocol: 'TCP'
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: second-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: second-app
+      tier: backend
+  template:
+    metadata: 
+      labels:
+        app: second-app
+        tier: backend
+    spec: 
+      containers:
+        - name: second-node
+          image: stevewhitmore/kub-first-app:2
+```
+
+It's also considered best practice to define a Service object before a Deployment one because resources are created top to bottom, so the selector in that object will dynamically create the Pods defined thereafter.
+
+### More on Labels & Selectors
+
+There's an alternative to `matchLabels` called `matchExpressions`. This is a more powerful option that allows for more complex configuration.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: second-app-deployment
+spec:
+  replicas: 1
+  selector:
+    # matchLabels:
+    # app: second-app
+    # tier: backend
+  matchExpressions:
+    - {key: app, operator: In, values: [second-app, first-app]}
+...
+```
+
+You can also delete resources by selector. Add a label under metadata tag:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    group: example  # key and value are arbitrary here
+spec:
+  selector: 
+    app: second-app
+  ports:
+    - protocol: 'TCP'
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: second-app-deployment
+  labels:
+    group: example
+spec:
+...
+```
+
+You use the `-l` flag for this and specify what resources as an added security measure to avoid accidental deletions.
+
+```bash
+$ kubectl delete deployments,services -l group=example
+deployment.apps "second-app-deployment" deleted
+service "backend" deleted
+```
+
+### Liveness Probes
+
+We can add some configs to adjust the default check on the health of our resources by adding the `livenessProbe` property under `containers`.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: second-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: second-app
+      tier: backend
+  template:
+    metadata: 
+      labels:
+        app: second-app
+        tier: backend
+    spec: 
+      containers:
+        - name: second-node
+          image: stevewhitmore/kub-first-app:2
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+            initialDelaySeconds: 5
+```
+
+### ImagePullPolicy
+
+By default the image pull policy is set to `IfNotPresent` if the image is not explicitly specified. This means that if you have an existing tag but a new `latest` then it will not pull the newest copy of that tag. You can override this by adding `imagePullPolicy: Always` under the `containers` property:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: second-app-deployment
+  labels:
+    group: example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: second-app
+      tier: backend
+  template:
+    metadata: 
+      labels:
+        app: second-app
+        tier: backend
+    spec: 
+      containers:
+        - name: second-node
+          image: stevewhitmore/kub-first-app:3
+          imagePullPolicy: Always
+```
+
+
