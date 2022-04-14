@@ -230,7 +230,7 @@ first-app-8575b449bf-vr48r   1/1     Running   0          76s
 
 Now would be a good time to run `minkube dashboard` to monitor your new cluster.
 
-### kubectl: Behind the Scenes
+#### kubectl: Behind the Scenes
 
 `kubectl create deployment --image ...` is sent to the Master Node (Control Plane) where the Scheduler analyzes currently running Pods and finds the best Node for the new Pod(s). It sends it to the Worker Node where the kubelet manages the Pod and Containers. 
 
@@ -251,6 +251,8 @@ Reaching a Pod from outside a Cluster is not possible at all wihtout Services.
 #### Exposing a Deployment with a Service
 
 You can expose a deployment with the following command: `kubectl expose deployment app-name --port=8080`. You can also pass in a `--type` flag which has the default value `ClusterIP`. Other choices would be `NodePort` and `LoadBalancer`.
+
+> LoadBalancer is the most common for external access
 
 You'll see 2 services when you check. One was created by K8s with the default ClusterIP type. The other is the one we made:
 
@@ -344,3 +346,119 @@ a1c01e366b99: Layer already exists
 $ kubectl set image deployment/first-app kub-first-app=stevewhitmore/kub-first-app:2
 deployment.apps/first-app image updated
 ```
+
+#### Deployment Rollbacks & History
+
+If a Pod fails to start for some reason you can roll it back by running `kubectl rollout undo deployment/first-app`. This will undo the last Pod deployed.
+
+You can see the rollout history with `kubectl rollout history deployment/first-app`. To see specifics about a previous rollout you can use the `--revision` flag: `kubectl rollout history deployment/first-app --revision=1`
+
+You can go back to a specific rollout by running `kubectl rollout undo deployment/first-app --to-revision=1`
+
+### Imperative vs Declarative Deployments
+
+Like with Docker you can use a yaml file to make it easier to control things. You create a resource definition file to make working with your cluster easier.
+
+**Imperative:**
+
+- You use commands like `kubectl create deployment ...`
+- Individual commands are executed to trigger certain Kubernetes actions
+- Comparable to using `docker run` only
+
+**Declarative:**
+
+- You use commands like `kubectl apply -f config.yaml`
+- A config file is defined and applied to change the desired state
+- Comparable to use Docker Compose with compose files
+
+### Creating a Deployment Configuration File (Declarative Approach)
+
+First, make sure there are no Deployments, Pods, or Services (outside of the default ClusterIP one)
+
+```bash
+$ kubectl delete service first-app
+service "first-app" deleted
+$ kubectl delete deployment first-app
+deployment.apps "first-app" deleted
+$ kubectl get deployments
+No resources found in default namespace.
+$ kubectl get pods
+No resources found in default namespace.
+$ kubectl get services
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   100m
+```
+
+Next, create a yaml file. It can be called anything. There is a specific syntax you need to be conscious of. Below is the bare minimum needed to create a Deployment with one Pod with one Container:
+
+```yaml
+apiVersion: apps/v1  # You can find versions in the docs. Be careful about pointing to the latest version for obvious reasons.
+kind: Deployment  # You need to specify what kind of resource you're defining. It could also be Service or Job or something like that.
+metadata:
+  name: second-app-deployment  # This is the equivalent of `kubectl create deployment app-name ...`
+spec:
+  replicas: 1  # Defaults to 1. 0 is also a possibility if you don't want any Pods right away.
+  selector:  # This is essential for declaritively deployed Pods. A Deployment continuously watches the Pods out there and sees which ones it should control. It selects these pods with the selector. This is true for all K8s resources. The "matchLabels" below are for the Deployment to know which labels to match against. These labels are defined below under "template" for the Pods. If other labels are below "template" but not also defined under "matchLabels" then they will not be controlled by this Deployment.
+    matchLabels:
+      app: second-app
+      tier: backend
+  template:  # This is where we define the Pod that should be created. You don't use "kind" here because a template of a Deployment will always be a Pod. Pod templates can only have 2 next level keys: metadata and spec.
+    metadata:  # We're creating a new Object here so we need new metadata.
+      labels:  # We can put "name" here instead but we chose label
+        app: second-app  # This key can be "deployment" or "depl" instead.
+        tier: backend
+    spec: 
+      containers:  #  You can have multiple Containers per Pod. Each defined below with a dash.
+        - name: second-node  # Arbitrary name of app
+          image: stevewhitmore/kub-first-app:3
+        # - name: ...
+        #   image: ...
+```
+
+Execute this with `kubectl apply -f=/path/to/file.yaml`.
+
+### Creating a Service Declaratively
+
+You can have multiple config files. In our case we have a `deployment.yaml` and a `service.yaml` which is defined below.
+
+```yaml
+apiVersion: v1  # This is just "v1" since it comes from the core package (unlike the one in "apps" like we used for deployments.yaml)
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:  # This is a bit different than for Deployment objects because this API is a bit older. The labels are defined directly instead of using "matchLabel" like we do with `deployment.yaml`.
+    app: second-app
+  ports:  # We use the below instead of `kubectl expose deployment first-app --port=... --type=LoadBalancer`
+    - protocol: 'TCP'  # Defaults to "TCP"
+      port: 80  # The port within the container
+      targetPort: 8080  # The port on the host machine
+    # - protocol: 'TCP'
+    #   port: 443
+    #   targetPort: 443
+  type: LoadBalancer
+```
+
+Deploy the Pod and expose it with the service by running the following: `kubectl apply -f=deployment.yaml -f=service.yaml`. Find the service name with `kubectl get services` and then the local IP with `minikube service (service name)`, followed by `minikube list services`:
+
+```bash
+$ kubectl apply -f=deployment.yaml -f=service.yaml
+deployment.apps/second-app-deployment unchanged
+service/backend created
+$ kubectl get services
+NAME         TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+backend      LoadBalancer   10.96.108.148   <pending>     80:31665/TCP   14s
+kubernetes   ClusterIP      10.96.0.1       <none>        443/TCP        3h8m
+$ minikube service backend
+$ minikube service list
+|----------------------|---------------------------|--------------|---------------------------|
+|      NAMESPACE       |           NAME            | TARGET PORT  |            URL            |
+|----------------------|---------------------------|--------------|---------------------------|
+| default              | backend                   |           80 | http://192.168.49.2:31665 |
+| default              | kubernetes                | No node port |
+| kube-system          | kube-dns                  | No node port |
+| kubernetes-dashboard | dashboard-metrics-scraper | No node port |
+| kubernetes-dashboard | kubernetes-dashboard      | No node port |
+|----------------------|---------------------------|--------------|---------------------------|
+```
+
