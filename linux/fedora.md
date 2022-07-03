@@ -4,6 +4,10 @@ For Fedora-specific good-to-knows.
 
 ## DNF
 
+### Package install date
+
+The `dnf info <package-name>` command gives useful metadata about a package but doesn't include when it was installed on your system. Use `rpm -qi <package-name>` to see an installation date.
+
 ### Safe dnf update
 
 There's a risk with `dnf update` from a graphical terminal session.. This almost always works fine, but in extremely rare cases it can destroy your operating system. This can happen when a process in the desktop environment crashes while the update is running. To safely run dnf update without worry, switch to a virtual terminal `Ctrl+Alt+F3` and run it there, where it doesn't stand any risk of being killed mid-operation. Use `Ctrl+Alt+F2` to return to your desktop. Other online updaters, like `apt-get`, are no different; this advice applies to any program that you can use to update your system.
