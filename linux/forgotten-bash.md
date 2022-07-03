@@ -1,3 +1,7 @@
+### List file sizes
+
+To include hidden files and directories, as well was sort by size, use `du -hs $(ls -A) | sort -h`. 
+
 ### Find
 
 ```bash
