@@ -1,6 +1,6 @@
 # RxJS Must Knows
 
-There are hundreds of RxJS functions and operators. These are the most commonly used ones and thus the most beneficial to master.
+There are hundreds of RxJS functions and operators. These are 20 of the most commonly used ones and thus the most beneficial to master.
 
 ## Creational Operators
 
@@ -183,6 +183,32 @@ of(1, 1, 1, 2, 2, 2, 1, 1, 3, 3)
 // 2
 // 1
 // 3
+```
+
+### endWith
+
+Allows you to specify the last value to be emitted before completion.
+
+```javascript
+const ticker$ = interval(5000).pipe(
+  map(() => 'tick')
+);
+ 
+const documentClicks$ = fromEvent(document, 'click');
+ 
+ticker$.pipe(
+  startWith('interval started'),
+  takeUntil(documentClicks$),
+  endWith('interval ended by click')
+)
+.subscribe(x => console.log(x));
+ 
+// Result (assuming a user clicks after 15 seconds)
+// 'interval started'
+// 'tick'
+// 'tick'
+// 'tick'
+// 'interval ended by click'
 ```
 
 ### filter
@@ -369,4 +395,17 @@ of(3).pipe(
 
 // Outputs:
 // 3
+```
+
+### withLatestFrom
+
+Allows “pulling” latest value from another observable when the source observable emits. The
+source value is combined with the other observable in an array.  
+Use this when you need information from another observable, but may not care when that observable emits.
+
+```javascript
+const clicks = fromEvent(document, 'click');
+const timer = interval(1000);
+const result = clicks.pipe(withLatestFrom(timer));
+result.subscribe(x => console.log(x));
 ```
