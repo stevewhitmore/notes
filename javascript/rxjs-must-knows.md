@@ -253,6 +253,27 @@ of(1,2,3,4)
 // 8
 ```
 
+### mergeMap
+
+Returns an Observable that emits items based on applying a function that you supply to each item emitted by the source Observable, where that function returns an Observable, and then merging those resulting Observables and emitting the results of this merger.
+
+```javascript
+of('a', 'b', 'c')
+  .pipe(
+    mergeMap(x => interval(1000).pipe(map(i => x + i)))
+  )
+  .subscribe(console.log);
+ 
+// Results in the following:
+// a0
+// b0
+// c0
+// a1
+// b1
+// c1
+// continues to list a, b, c every second with respective ascending integers
+```
+
 ### startsWith
 
 Provides the ability to specify a value which will be the first value emitted by the observable.  
@@ -334,18 +355,18 @@ result.subscribe(x => console.log(x));
 // ...etc until a click
 ```
 
-## Gotchas
+### tap
 
-### first vs take(1)
+Allows for side-effects based upon the source observable, but does not have an effect on the
+values being emitted. Use this to use the emit of an observable to trigger something outside
+the scope of the observable. A common use case is to place debugging statements such as
+logging.
 
-`first()` will throw an error if no value is provided while `take(1)` will not
+```javascript
+of(3).pipe(
+  tap(console.log),
+).subscribe();
 
-### forkJoin vs merge vs zip
-
-## flatMap vs mergeMap
-
-They're the same thing. flatMap was renamed to mergeMap and is being removed in v8.
-
-### switchMap vs mergeMap
-
-switchMap cancels previous HTTP requests that are still in progress, while mergeMap lets all of them finish.
+// Outputs:
+// 3
+```
