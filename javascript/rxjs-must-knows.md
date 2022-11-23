@@ -236,6 +236,23 @@ of(1, 2, 3, 4, 5, 6, 7, 8, 9)
 // 9
 ```
 
+### map
+
+Allows the values to be modified to a new value.  
+Use this when you want to change values being emitted.
+
+```javascript
+of(1,2,3,4)
+  .pipe(map(x => x *= 2))
+  .subscribe(console.log);
+
+// Outputs:
+// 2
+// 4
+// 6
+// 8
+```
+
 ### startsWith
 
 Provides the ability to specify a value which will be the first value emitted by the observable.  
@@ -325,4 +342,10 @@ result.subscribe(x => console.log(x));
 
 ### forkJoin vs merge vs zip
 
+## flatMap vs mergeMap
+
+They're the same thing. flatMap was renamed to mergeMap and is being removed in v8.
+
 ### switchMap vs mergeMap
+
+switchMap cancels previous HTTP requests that are still in progress, while mergeMap lets all of them finish.
