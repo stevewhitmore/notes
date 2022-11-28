@@ -4,6 +4,35 @@ There are hundreds of RxJS functions and operators. These are 20 of the most com
 
 ## Creational Operators
 
+### EMPTY
+
+A simple Observable that emits no items to the Observer and immediately emits a complete notification.
+
+```javascript
+EMPTY.subscribe({
+  next: () => console.log('Next'),
+  complete: () => console.log('Complete!')
+});
+
+// Outputs
+// Complete!
+```
+
+### NEVER
+
+An Observable that emits no items to the Observer and never completes.
+
+```javascript
+const info = () => console.log('Will not be called');
+
+const result = NEVER.pipe();
+result.subscribe({
+  next: info,
+  error: info,
+  complete: info
+});
+```
+
 ### from
 
 Creates an Observable from an Array, an array-like object, a Promise, an iterable object, or an Observable-like object.  
