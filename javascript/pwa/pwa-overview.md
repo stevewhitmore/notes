@@ -324,4 +324,271 @@ Run `node push-server.js` and a push notification will be sent to the client.
 
 ## Caching
 
+Don't use localStorage because it's a synchronous store.
+
+pouchdb (based off of CouchDB) will allow you to sync data with the cloud and in turn other devices.
+
+localForage is good at handling data too large for the SW and works well with older devices.
+
+Cache API is the newest from HTML5. Will work only with browsers supporting SWs.
+
+### ChacheStorage
+
+Interface for Cache APi.
+
+```javascript
+if (window.caches) {
+  caches.open('test');
+}
+```
+
+The above creates a cache.
+
+Print out the cache keys with `caches.keys();`.
+
+Check for existing keys with `caches.has('test');`.
+
+Delete cache with `caches.delete('test1');` or `caches.deleteAll([ ... ]);`.
+
+These all return promises, so print out the results by appending `.then(console.log)`;
+
+You can add stuff to the cache with the following:
+
+```javascript
+if (window.caches) {
+  caches.open('pwa-v1.1').then((cache) => {
+    cache.addAll([
+      '/index.html',
+      '/style.css',
+      '/main.js'
+    ]);
+
+    // cache.add('/index.html');
+  });
+}
+```
+
+These resources need to be present because if the promise fails, it fails and there's no recourse. Best to only use this with resources located in the same origin.
+
+You can control the responses by directly calling `put`: 
+
+```javascript
+if (window.caches) {
+
+  caches.open('pwa-v1.1').then((cache) => {
+
+    cache.put('input.html', new Response('My own HTML'));
+
+    // cache.match('index.html').then((res) => {
+    //    res.text().then(console.log);
+    // });
+  });
+}
+```
+
+When the commented out code above is uncommented, then the output will be "My own HTML".
+
+### Caching in the Storage Worker
+
+*sw.js*
+
+```javascript
+const pwaCache = 'pwa-cache-2';
+
+self.addEventListener('install', (e) => {
+
+  let cacheReady = caches.open(pwaCache).then((cache) => {
+
+    console.log('New cache ready.');
+    return cache.addAll([
+      '/',
+      'style.css',
+      'thumb.png',
+      'main.js'
+    ]);
+  });
+
+  e.waitUntil(cacheReady);
+});
+
+
+self.addEventListener('activate', (e) => {
+
+  let cacheCleaned = caches.keys().then((keys) => {
+
+    keys.forEach((key) => {
+      if( key !== pwaCache ) return caches.delete(key);
+    });
+  });
+
+  e.waitUntil(cacheCleaned);
+
+});
+
+
+self.addEventListener('fetch', (e) => {
+
+  // Skip for remote fetch
+  if ( !e.request.url.match(location.origin) )  return;
+
+  // Serve local fetch from cache
+  let newRes = caches.open(pwaCache).then((cache) => {
+    return cache.match(e.request).then((res) => {
+
+      // Check request was found in cache
+      if (res) {
+        console.log(`Serving ${res.url} from cache.`);
+        return res;
+      }
+
+      // Fetch on behalf of client and cache
+      return fetch(e.request).then((fetchRes) => {
+
+        cache.put(e.request, fetchRes.clone());
+        return fetchRes;
+      });
+    });
+  });
+
+  e.respondWith(newRes);
+
+});
+```
+
+### Caching Strategies
+
+It's a good idea to have a network fallback if resources get deleted from the cache from the user or the OS
+
+```javascript
+// 1. Cache only. Static assets - App Shell
+ e.respondWith(caches.match(e.request));
+
+// 2. Cache with Network Fallback
+ e.respondWith(
+  caches.match(e.request).then( (res) => {
+    if(res) return res;
+
+    // Fallback
+    return fetch(e.request).then( (newRes) => {
+      // Cache fetched response
+      caches.open(pwaCache).then( cache => cache.put(e.request, newRes) );
+      return newRes.clone();
+    })
+  })
+);
+
+// 3. Network with cache fallback
+e.respondWith(
+  fetch(e.request).then( (res) => {
+
+    // Cache latest version
+    caches.open(pwaCache).then( cache => cache.put(e.request, res) );
+    return res.clone();
+
+  // Fallback to cache
+  }).catch( err => caches.match(e.request) )
+);
+
+// 4. Cache with Network Update
+e.respondWith(
+  caches.open(pwaCache).then( (cache) => {
+
+    // Return from cache
+    return cache.match(e.request).then( (res) => {
+
+      // Update
+      let updatedRes = fetch(e.request).then( (newRes) => {
+        // Cache new response
+        cache.put(e.request, newRes.clone());
+        return newRes;
+      });
+
+      return res || updatedRes;
+    })
+  })
+);
+
+// 5. Cache & Network Race with offline content
+let firstResponse = new Promise((resolve, reject) => {
+
+  // Track rejections
+  let firstRejectionReceived = false;
+  let rejectOnce = () => {
+    if (firstRejectionReceived) {
+
+      if (e.request.url.match('thumb.png')) {
+        resolve(caches.match('/placeholder.png'));
+      } else {
+        reject('No response received.')
+      }
+    } else {
+      firstRejectionReceived = true;
+    }
+  };
+
+  // Try Network
+  fetch(e.request).then( (res) => {
+    // Check res ok
+    res.ok ? resolve(res) : rejectOnce();
+  }).catch(rejectOnce);
+
+  // Try Cache
+  caches.match(e.request).then( (res) => {
+    // Check cache found
+    res ? resolve(res) : rejectOnce();
+  }).catch(rejectOnce);
+
+});
+e.respondWith(firstResponse);
+```
+
+## Native App Features
+
+This part is pretty simple. It just needs a `manifest.json` with contents like below:
+
+```json
+{
+  "name": "Progressive Web App",
+  "short_name": "PWA",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#2D91F8",
+  "description": "Progressive Web Apps - The Complete Guide",
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+       "src": "/icons/icon-96.png",
+       "sizes": "96x96",
+       "type": "image/png"
+     },
+     {
+       "src": "/icons/icon-128.png",
+       "sizes": "128x128",
+       "type": "image/png"
+     },
+     {
+       "src": "/icons/icon-144.png",
+       "sizes": "144x144",
+       "type": "image/png"
+     },
+     {
+       "src": "/icons/icon-152.png",
+       "sizes": "152x152",
+       "type": "image/png"
+     },
+     {
+       "src": "/icons/icon-192.png",
+       "sizes": "192x192",
+       "type": "image/png"
+     }
+  ]
+}
+
+```
+
+You can generate a manifest at <https://app-manifest.firebaseapp.com/>.
 
