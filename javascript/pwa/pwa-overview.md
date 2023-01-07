@@ -236,6 +236,18 @@ if (window.Notification) {
 
 Client has a public key. You subscribe to the service worker's push manager where you recieve a private key. Post it to the push server for it to use to push notifications:
 
+Generate the keys with the `web-push` package:
+
+```bash
+$ npm i web-push
+```
+
+Then generate the keys by calling its CLI script directly:
+
+```bash
+node_modules/web-push/src/cli.js generate-vapid-keys --json
+```
+
 *main.js*
 
 ```javascript
