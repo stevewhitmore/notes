@@ -62,7 +62,8 @@ You could use a union in a type instead of an optional property in an interface.
 
 > spread operator only does shallow clones  
 > you can use Lodash or Clone-Deep npm package for deep clone  
-> **Look into this more ^**
+> **!! It will "copy" all levels but still points to original object's nested properties**  
+> Look into using "copy-deep" package for deep clone - or lodash if app already has it installed (but only import "cloneDeep()" function
 
 ViewModel class (rather than a full clone) is good for parsing out pieces of the api response data or adding properties to it for what's needed in the view.  
 
@@ -117,8 +118,65 @@ return forkJoin({
 })
 ```
 
+**switchMap:** Flattens most recent inner observable.  
+
+**concatMap:** Flattens inner observables, order guarantee.  
+
+**mergeMap:** Flattens inner observables, no order guarantee.  
+
+**forkJoin:** Waits for all observables to complete, emits result.  
+
 > **Look up differences between forkJoin and combineLatest**
 
 ## RxJS Subjects
 
+**Subject:** Only subscribers receive data  
+
+**BehaviorSubject:** Note how this picks up the last value emitted event though it subscribed after the value was sent out. That's because BehaviorSubject allows an initial value to be sent to an observer as they subscribe.  
+- This is especially useful if timing issues happen in the app *if* you have a seed value. Otherwise use ReplaySubject in this case.
+
+**ReplaySubject:** Note how this stays in sync with everything above even though it subscribes 10 seconds after the subject. That's because it's replaying everything up to that point from a cache it maintains.  
+
+**AsyncSubject:** This only plays the last item before it completes - nothing before that. It "completes" in the data service once the customers array length is greater than 5.
+
+### Observable Services
+
+- Send data to observers/subscribers
+- Follows the "observer pattern"
+- Provides a simple way to keep multiple observers up-to-date
+- Service can use RxJS Subject objects and observables
+- You may have many customized observable services
+
+```typescript
+@Injectable()
+export class DataService {
+  private customers: ICustomer[];
+  private customersSubject$ = new 
+      BehaviorSubject<ICustomer[]>(this.customers);
+  customersChanged$ = this.customersSubject$.asObservable(); // initial data to send to new observer
+
+  addCustomer() : Observable<ICustomer[]> {
+    ...
+    // Send customers data to any observers
+    this.customersSubject$.next(this.customers); // send data to any observers
+    return of(this.customers); // the caller of the function gets the customers and the subscribers get them too
+  }
+}
+```
+
+Subsciptions actually do act like an array -
+```typescript
+subs = new Subscription();
+
+this.subs.add(...)
+
+ngOnDestroy() { this.subs.unsubscribe(); }
+```
+
+The downside to this approach is it's not immediately apparent that the Subject is an array. SubSink has easier to understand syntax.
+
+## Misc
+
+- Look into using the CoPilot VSCode plugin to ask questions e.g. // q: what's the difference between mergeMap and concatMap
+- Look into Design Patterns book (Gang of 4 book)
 
