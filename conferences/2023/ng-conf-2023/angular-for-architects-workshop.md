@@ -6,7 +6,7 @@
 
 - using `const enum` translates each value to numerical value
 
-Look into utility types [ReadOnly](https://www.typescriptlang.org/docs/handbook/utility-types.html#readonlytype) and [Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype).
+> **Look into utility types [ReadOnly](https://www.typescriptlang.org/docs/handbook/utility-types.html#readonlytype) and [Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype).**
 
 ### Using Types vs Interfaces
 
@@ -44,7 +44,9 @@ const person: PersonType = {
 }
 ```
 
-Types are good for union types e.g. `type Pet = 'dog' | 'cat' | 'fish'`;
+Types are good for union types e.g. `type Pet = 'dog' | 'cat' | 'fish'`.
+
+You could use a union in a type instead of an optional property in an interface.
 
 ### Benefits of interfaces/types vs classes
 
@@ -53,4 +55,30 @@ Types are good for union types e.g. `type Pet = 'dog' | 'cat' | 'fish'`;
 - Types can define primitives AND object-like data structures
 - Neither create instances
 - No impact to bundle size
+
+## Component View Models
+
+2-way data binding can make model/view too tightly coupled - especially in more complex applications. One way around this is cloning the model. Creates a ViewModel to bind to instead of the actual data model. 
+
+> spread operator only does shallow clones
+> you can use Lodash or Clone-Deep npm package for deep clone
+> **Look into this more ^**
+
+ViewModel class (rather than a full clone) is good for parsing out pieces of the api response data or adding properties to it for what's needed in the view. 
+
+- Assuming you have a model for the full response dataset, you can use Partial<T> in your ViewModel class.
+
+ViewModel acts as a scratchpad until the data is in a state ready for sending up to the api. The model is the single source of truth. Don't change it until it's ready to persist.
+
+### ViewModel Services
+
+Good for when your component represent several connected models
+
+- Keep all the logic in it for a single source of truth
+- Hides assembly of complex ViewModels
+- Shares ViewModels with collaborating components
+- Easier to test than a component
+- Lets the Presenters focus on presenting
+- Keeps the Views and ViewModels clean
+
 
