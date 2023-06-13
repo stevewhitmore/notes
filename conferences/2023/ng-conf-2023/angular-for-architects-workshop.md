@@ -203,6 +203,44 @@ If you can anticipate the user flow you can preload module bundles so users expe
 
 > :star: Look into this in more detail in the future
 
+## Module Architecture
+
+- Each feature should have a module and routing module (as appropriate)
+- Allows module to be independently developed and self-contained
+- Supports lazy loading
+
+Shared folder should contain reusable components, pipes, directives  
+
+The "core" folder should contain singleton services shared throughout app  
+
+### Standalone
+
+Simplify your applications (while still retaining support for Angular features).  
+Organize components, pipes, directives, services using feature folders.  
+
+```typescript
+@Component({
+  standalone: true,
+  selector: 'app-customers',
+  imports: [GridComponent, NgIf, NgFor, FormsModule],
+  templateUrl: './customers.component.html'
+})
+export class CustomersComponent {
+}
+```
+
+#### Migrating from Modules to Standalone
+
+1. Run `ng g @angular/core:standalone` and select Convert all components, directives and pipes to standalone
+2. Run `ng g @angular/core:standalone` again and select Remove unnecessary NgModule classes
+3. Run `ng g @angular/core:standalone` a 3rd time and select Bootstrap the project using standalone APIs
+4. Run any linting and formatting checks, fix any failures, and commit the result
+
+The philosophy of the Ng team is this is a subjective decision. Do what your team agrees on and stay consistent.
+
+
+`ng new my-project --standlone`
+
 
 
 ## Misc
