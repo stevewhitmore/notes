@@ -6,7 +6,7 @@
 
 - using `const enum` translates each value to numerical value
 
-> **Look into utility types [ReadOnly](https://www.typescriptlang.org/docs/handbook/utility-types.html#readonlytype) and [Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype).**
+> :star: Look into utility types [ReadOnly](https://www.typescriptlang.org/docs/handbook/utility-types.html#readonlytype) and [Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype).
 
 ### Using Types vs Interfaces
 
@@ -60,10 +60,10 @@ You could use a union in a type instead of an optional property in an interface.
 
 2-way data binding can make model/view too tightly coupled - especially in more complex applications. One way around this is cloning the model. Creates a ViewModel to bind to instead of the actual data model. 
 
-> spread operator only does shallow clones  
-> you can use Lodash or Clone-Deep npm package for deep clone  
-> **!! It will "copy" all levels but still points to original object's nested properties. This means any changes made to the nested property will update the ORIGINAL object as well as the copy**  
-> Look into using "copy-deep" package for deep clone - or lodash if app already has it installed (but only import "cloneDeep()" function
+> Spread operator only does shallow clones.  
+> You can use Lodash or Clone-Deep npm package for deep clone.  
+> **!! It will "copy" all levels but still points to original object's nested properties. This means any changes made to the nested property will update the ORIGINAL object as well as the copy.**  
+> :star: Look into using "copy-deep" package for deep clone - or lodash if app already has it installed (but only import "cloneDeep()" function.
 
 ViewModel class (rather than a full clone) is good for parsing out pieces of the api response data or adding properties to it for what's needed in the view.  
 
@@ -126,7 +126,7 @@ return forkJoin({
 
 **forkJoin:** Waits for all observables to complete, emits result.  
 
-> **Look up differences between forkJoin and combineLatest**
+> :star: Look up differences between forkJoin and combineLatest
 
 ## RxJS Subjects
 
@@ -174,6 +174,36 @@ ngOnDestroy() { this.subs.unsubscribe(); }
 ```
 
 The downside to this approach is it's not immediately apparent that the Subject is an array. SubSink has easier to understand syntax.
+
+## Preload Strategies
+
+Addressing user experience by timing when to load JavaScript bundles
+
+When a User Navigates to a Route:
+
+1. The router makes a network request to download a module
+2. The router checks if any modules should be preloaded
+3. This causes users to wait
+
+Navigate to app (Initial bundles) -> TIme to Interactive (preload module bundle)
+
+If you can anticipate the user flow you can preload module bundles so users expeirence no lag.
+
+### Types of preload strategies
+
+**None:** The default behavior  
+**All:** Useful, but aggressive and taxing on network  
+**Custom:** Preload based on your custom logic
+
+### Custom preload strategies
+
+1. Implement the PreloadingStrategy interface
+2. Write custom logic describing how it should behave
+3. Apply it to the routes
+
+> :star: Look into this in more detail in the future
+
+
 
 ## Misc
 
