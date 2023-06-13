@@ -62,7 +62,7 @@ You could use a union in a type instead of an optional property in an interface.
 
 > spread operator only does shallow clones  
 > you can use Lodash or Clone-Deep npm package for deep clone  
-> **!! It will "copy" all levels but still points to original object's nested properties**  
+> **!! It will "copy" all levels but still points to original object's nested properties. This means any changes made to the nested property will update the ORIGINAL object as well as the copy**  
 > Look into using "copy-deep" package for deep clone - or lodash if app already has it installed (but only import "cloneDeep()" function
 
 ViewModel class (rather than a full clone) is good for parsing out pieces of the api response data or adding properties to it for what's needed in the view.  
