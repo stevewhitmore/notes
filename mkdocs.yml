@@ -1,0 +1,100 @@
+site_name: Stephen Whitmore Notes
+site_description: Notes I take about all things tech
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.tooltips
+  language: en
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+extra_javascript:
+  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js # For table sorting
+  - javascripts/tablesort.js # For table sorting
+extra:
+  generator: false
+  nav_file: '_nav.yml'
+  analytics:
+    # provider: google
+    # property: G-XDXKPTVF0K
+    provider: plausible
+    domain: docs.naic.dev
+    src: '/slant-make-role/script.js'
+copyright: Copyright &copy; 2020 National Association of Insurance Commissioners
+plugins:
+  - material-plausible
+  - awesome-pages
+  - tags:
+      tags_file: about/tag_index.md
+  - search
+  - git-revision-date-localized
+  - git-authors
+markdown_extensions:
+  - toc:
+      permalink: "#" # Permalink icon is a hashbang
+  - admonition # Used by admonitions
+  - pymdownx.details # Used by admonitions
+  - attr_list # Used by annotations, grids, icons & emoji, images, tooltips
+  - md_in_html # Used by annotations, grids, images
+  - pymdownx.emoji: # Emojis
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight: # Code block highlighting
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences: # Used by admonitions, annotations, code block highlighting, content tabs
+      custom_fences: # Used by diagrams
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.inlinehilite # Code block highlighting
+  - pymdownx.snippets # Code block highlighting, tooltips
+  - tables
+  - pymdownx.tabbed: # Used in content tabs
+      alternate_style: true
+  - footnotes
+  - pymdownx.critic # Used by formatting
+  - pymdownx.caret # Used by formatting
+  - pymdownx.keys # Used by formatting
+  - pymdownx.mark # Used by formatting
+  - pymdownx.tilde # Used by formatting
+  - def_list # Definition lists
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - abbr # Tooltips
+repo_url: https://gitlab.com/NAIC/enterprise/documentation
+edit_uri: -/blob/v010-mkdoc/docs/
+validation:
+  nav:
+    not_found: warn
+  links:
+    not_found: warn
+    anchors: warn
+    unrecognized_links: warn
+    absolute_links: warn
+draft_docs: |
+  drafts/
+not_in_nav: |
+  images/
+site_dir: public
