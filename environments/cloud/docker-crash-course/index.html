@@ -1,0 +1,4510 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Notes I take about all things tech">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../kubernetes-crash-course/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+    
+    
+      
+        <title>Docker Crash Course - Stephen Whitmore Notes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.3cba04c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  <script
+  defer
+  data-domain="docs.naic.dev"
+  src="/slant-make-role/script.js"
+></script>
+
+<script>
+  window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };
+
+  /* Register event handlers after documented loaded */
+  document.addEventListener("DOMContentLoaded", function () {
+    /* Set up search tracking */
+    if (document.forms.search) {
+      var query = document.forms.search.query;
+      query.addEventListener("blur", function() {
+        if (this.value) plausible("Search", { props: { search_term: this.value } });
+      })
+    }
+
+    /* Set up feedback, i.e. "Was this page helpful?" */
+    document$.subscribe(function () {
+      var feedback = document.forms.feedback;
+      if (typeof feedback === "undefined") return;
+
+      /* Send feedback to Plausible */
+      for (var button of feedback.querySelectorAll("[type=submit]")) {
+        button.addEventListener("click", function (ev) {
+          ev.preventDefault();
+
+          var page = document.location.pathname;
+          var value = this.getAttribute("data-md-value");
+          console.log("[feedback] User clicked", { value });
+          plausible(`Feedback: ${value}`);
+
+          /* Disable form and show note, if given */
+          feedback.firstElementChild.disabled = true;
+          var note = feedback.querySelector(".md-feedback__note [data-md-value='" + value + "']");
+          if (note) note.hidden = false;
+        })
+
+        /* Show feedback */
+        feedback.hidden = false;
+      }
+    });
+  });
+</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#docker-crash-course" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Stephen Whitmore Notes" class="md-header__button md-logo" aria-label="Stephen Whitmore Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Stephen Whitmore Notes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Docker Crash Course
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://gitlab.com/NAIC/enterprise/documentation" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitLab
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../about/tag_index/" class="md-tabs__link">
+          
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../code/" class="md-tabs__link">
+          
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../conferences/" class="md-tabs__link">
+          
+  
+  Conferences
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  Environments
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../security/" class="md-tabs__link">
+          
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Stephen Whitmore Notes" class="md-nav__button md-logo" aria-label="Stephen Whitmore Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Stephen Whitmore Notes
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://gitlab.com/NAIC/enterprise/documentation" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitLab
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            About
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about/tag_index/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tag Index
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Code
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Code
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/java/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Java
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/python/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Typescript
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Typescript
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/rxjs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RxJS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/types-vs-interfaces/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Types vs Interfaces
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_3" id="__nav_3_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Angular
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Angular
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/angular/angular-basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Angular Basics (needs revising and cleanup)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/angular/pluralsight-unit-testing-in-angular/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unit Testing in Angular 12
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/angular/signals/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Signals
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_4" id="__nav_3_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Javascript
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Javascript
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/javascript/js-in-depth/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JS In Depth
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/javascript/random-javascript-goodies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Random JavaScript Goodies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_4_3" id="__nav_3_4_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Pwa
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Pwa
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../code/typescript/javascript/pwa/pwa-overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Progressive Web Apps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Conferences
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Conferences
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Conference Notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2019
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            2019
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Angular kc 2019
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Angular kc 2019
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/angular-kc-2019/graphql-2019-11-12/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GraphQL in Angular &amp; Upgrading AngularJS to Angular
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/angular-kc-2019/lightning-talks-2019-12-12/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lightning Talks and Holiday Meetup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/angular-kc-2019/ngrx-animations-2019-10-9/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ngrx Store &amp; Angular Animations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Kcdc 2019
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Kcdc 2019
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/electronics-for-programmers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Electronics for Programmers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/encryption/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Not Screwing Up Encryption
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/js-dark-arts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Defense Against the JavaScript dark arts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/microservices/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Microservices - The Easy Way Is the Wrong Way
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/pwa/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Progressive Web Apps with Angular
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/refactoring-js/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Refactoring JS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/rest-apis-long-haul/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    REST APIs For The Long Haul
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2019/kcdc-2019/solid/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SOLID – The five commandments of good software
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2021
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            2021
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Angular kc 2021
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Angular kc 2021
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2021/angular-kc-2021/angular-world-tour-2021-07-13-TUES/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Angular World Tour: Meetup AngularKC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Ng conf 2021
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Ng conf 2021
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2021/ng-conf-2021/ng-conf-2021-performance-workshop/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ng Conf 2021: Performance Workshop
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2021/ng-conf-2021/ng-conf-2021/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ng-conf 2021
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2022
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            2022
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2022/2022-11-03-writing-for-profressionals/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writing Tips For Professionals
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2023
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            2023
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1" id="__nav_4_5_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Kcdc 2023
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Kcdc 2023
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1_1" id="__nav_4_5_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Workshops
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_5_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            Workshops
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1_1_1" id="__nav_4_5_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java idioms
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_5_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            Java idioms
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2023/kcdc-2023/workshops/java-idioms/java-idioms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KCDC 2023 - Java Idioms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1_1_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1_1_1_2" id="__nav_4_5_1_1_1_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2023 kcdc java idioms
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_4_5_1_1_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1_1_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            2023 kcdc java idioms
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2023/kcdc-2023/workshops/java-idioms/2023-kcdc-java-idioms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1_1_2" id="__nav_4_5_1_1_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Spring
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_5_1_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            Spring
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2023/kcdc-2023/workshops/spring/spring-workshop/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KCDC 2023 - Spring Workshop
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1_1_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1_1_2_2" id="__nav_4_5_1_1_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Runnerz main
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_4_5_1_1_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1_1_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Runnerz main
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2023/kcdc-2023/workshops/spring/runnerz-main/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runnerz
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2023/kcdc-2023/workshops/spring/runnerz-main/HELP/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_2" id="__nav_4_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Ng conf 2023
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Ng conf 2023
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../conferences/2023/ng-conf-2023/angular-for-architects-workshop/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Angular For Architects Workshop
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Environments
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Environments
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Environments Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LAMP/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LAMP stack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Cloud
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Cloud
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cloud Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Docker Crash Course
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Docker Crash Course
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Basics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Basics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#virtual-machines-vs-virtual-operating-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Virtual Machines vs Virtual Operating Systems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-tools-building-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Tools &amp; Building Blocks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dockerfile-vs-docker-compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dockerfile vs Docker Compose
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dockerfile vs Docker Compose">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dockerfile" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dockerfile
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Compose
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-images-containers-the-core-building-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Images &amp; Containers: The Core Building Blocks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker Images & Containers: The Core Building Blocks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#managing-images-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Images &amp; Containers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing Images & Containers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Images
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Containers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attached-and-detached-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attached and Detached states
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entering-interactive-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entering interactive mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deleting-images-and-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deleting images and containers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copying-to-and-from-a-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      Copying to and from a container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming-tagging-containers-and-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Naming &amp; Tagging Containers and Images
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sharing-image-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sharing Image &amp; Containers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sharing Image & Containers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pushing-to-dockerhub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pushing to Dockerhub
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pulling-from-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pulling from docker
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-data-working-with-volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Data &amp; Working with Volumes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing Data & Working with Volumes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#types-of-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types of data
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Types of data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#application" class="md-nav__link">
+    <span class="md-ellipsis">
+      Application
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Temporary
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permanent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permanent
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Volumes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-types-of-external-data-storages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two types of external data storages
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bind-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bind Mounts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bind Mounts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#summing-up-anonymousnamed-volumes-vs-bind-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summing up Anonymous/Named Volumes vs Bind Mounts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-only-volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Read-Only Volumes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Volumes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dockerignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      .dockerignore
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-environment-variables-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working with Environment Variables &amp; Files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-build-arguments-arg" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using build arguments (ARG)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#networking-cross-container-communication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Networking &amp; Cross-Container Communication
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Networking & Cross-Container Communication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container Networks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-network-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Network Drivers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-multi-container-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building Multi-Container Applications
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building Multi-Container Applications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-data-persistence-to-mongodb-with-volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Data Persistence to MongoDB with Volumes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-docker-compose-for-multi-container-orchestration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using Docker Compose for Multi-Container Orchestration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-utility-containers-executing-commands-in-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working with Utility Containers &amp; Executing Commands In Containers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Working with Utility Containers & Executing Commands In Containers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#executing-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Executing Commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-docker-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying Docker Containers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying Docker Containers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bind-mounts-volumes-copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bind Mounts, Volumes, &amp; COPY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploying-to-ec2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying to EC2
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying to EC2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-source-code-vs-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy Source Code vs Image
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-publishing-the-app-on-ec2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running &amp; Publishing the App on EC2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disadvantages-of-our-current-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disadvantages of our Current Approach
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploying-to-ecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying to ECS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#understanding-a-common-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      Understanding a Common Problem
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mutli-stage-builds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mutli-Stage Builds
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kubernetes-crash-course/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Kubernetes Crash Course
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_4" id="__nav_5_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Aws
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Aws
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AWS Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/What_is_cloud_computing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    What is Cloud Computing?
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/cli_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI Intro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AWS Fundamentals
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_4_5" id="__nav_5_3_4_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Aws dev cert
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            Aws dev cert
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/iam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Identity &amp; Access Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_4_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_4_5_2" id="__nav_5_3_4_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Compute
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_4_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_4_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Compute
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/compute/compute_fundamentals/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Compute Fundamentals For AWS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_4_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_4_5_3" id="__nav_5_3_4_5_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Database
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_4_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_4_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Database
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/database_fundamentals/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Database Fundamentals for AWS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/documentdb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Amazon DocumentDB (With MongoDB Compatibility)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/dynamodb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Amazon DynamoDB
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/elasticache/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Amazon Elasticache
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/knowledge_check/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Knowledge Check
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/neptune/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Amazon Neptune
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/qldb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quantum Ledger Database (QLDB)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/rds/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Amazon Relational Database Service
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/database/redshift/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Amazon Redshift
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_4_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_4_5_4" id="__nav_5_3_4_5_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Storage
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_4_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_4_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            Storage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/aws-dev-cert/storage/storage_fundamentals/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Storage fundamentals
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Linux
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            Linux
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Linux Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/automation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Automation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/desktop/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Desktop
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/file-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/interfacing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Interfacing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/mounts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mounts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/navigation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Navigation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linux/system-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    System Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Security
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Security
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/vault/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HashiCorp Vault Quick Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+<nav class="md-tags" >
+  
+    
+    
+    
+      <a href="../../../about/tag_index/#cloud" class="md-tag">Cloud</a>
+    
+  
+    
+    
+    
+      <a href="../../../about/tag_index/#docker" class="md-tag">Docker</a>
+    
+  
+</nav>
+
+
+  
+  
+
+
+<h1 id="docker-crash-course">Docker Crash Course<a class="headerlink" href="#docker-crash-course" title="Permanent link">#</a></h1>
+<p>From Udemy's <a href="https://www.udemy.com/course/docker-kubernetes-the-practical-guide/">Docker &amp; Kubernetes: The Practical Guide (2022 Edition)</a></p>
+<p>[[<em>TOC</em>]]</p>
+<h2 id="the-basics">The Basics<a class="headerlink" href="#the-basics" title="Permanent link">#</a></h2>
+<p>Docker is a container technology: A tool for creating and managing containers.</p>
+<p>Container is a standardized unit of software - a package of code and dependencies to run that codce. Container always yields the exact same application and execution behavior.</p>
+<h3 id="virtual-machines-vs-virtual-operating-systems">Virtual Machines vs Virtual Operating Systems<a class="headerlink" href="#virtual-machines-vs-virtual-operating-systems" title="Permanent link">#</a></h3>
+<p>VMs can do a lot of what containers can do BUT they have way more overhead than containers. Wastes a lot of space on hard drive and tends to be slow.</p>
+<p>Instead of emulating an entire system, containers have OS built-in emulated container support and a docker engine to spin up containers. Much more light weight (by orders of magnitude).
+The container may have a small OS layer but it's still way smaller than a VM.</p>
+<h3 id="docker-tools-building-blocks">Docker Tools &amp; Building Blocks<a class="headerlink" href="#docker-tools-building-blocks" title="Permanent link">#</a></h3>
+<p>The following are installed when Docker app is installed</p>
+<ul>
+<li>Docker Engine</li>
+<li>Docker Desktop (Daemon and CLI)</li>
+</ul>
+<h3 id="dockerfile-vs-docker-compose">Dockerfile vs Docker Compose<a class="headerlink" href="#dockerfile-vs-docker-compose" title="Permanent link">#</a></h3>
+<h4 id="dockerfile">Dockerfile<a class="headerlink" href="#dockerfile" title="Permanent link">#</a></h4>
+<p>A Dockerfile is a simple text file that contains the commands a user could call to assemble an image.</p>
+<h4 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">#</a></h4>
+<ul>
+<li>is a tool for defining and running multi-container Docker applications.</li>
+<li>define the services that make up your app in docker-compose.yml so they can be run together in an isolated environment.</li>
+<li>get an app running in one command by just running docker-compose up</li>
+</ul>
+<h2 id="docker-images-containers-the-core-building-blocks">Docker Images &amp; Containers: The Core Building Blocks<a class="headerlink" href="#docker-images-containers-the-core-building-blocks" title="Permanent link">#</a></h2>
+<p><em>Dockerfile in a nodejs app</em></p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="l l-Scalar l-Scalar-Plain">FROM node</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="l l-Scalar l-Scalar-Plain"># Context is set so all work done in this file will happen here</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="l l-Scalar l-Scalar-Plain">WORKDIR /app</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="l l-Scalar l-Scalar-Plain"># Can also be &quot;COPY . .&quot; since the WORKDIR was set</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="l l-Scalar l-Scalar-Plain">COPY . /app</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="l l-Scalar l-Scalar-Plain">RUN npm install</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="l l-Scalar l-Scalar-Plain"># This instruction doesn&#39;t do anything but it&#39;s best practice to add it for readability</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="l l-Scalar l-Scalar-Plain"># You need to expose the port via the `docker run` command</span><span class="p p-Indicator">:</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1">#   1. `docker build` and point to dir with Dockerfile. Output has image image name that&#39;ll be a sha.</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1">#   2. `docker run -p &lt;local port&gt;:&lt;container port&gt; &lt;image name&gt; e.g. `docker run -p 3000:80 d31c8fdfbcd8`</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="l l-Scalar l-Scalar-Plain">EXPOSE 80</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1">#RUN node server.js</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="l l-Scalar l-Scalar-Plain">CMD [&quot;node&quot;, &quot;server.js&quot;]</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># The difference between RUN and CMD is the latter will only happen once a container is run based on the image.</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1"># If you don&#39;t specify a CMD, the CMD of the base image will be executed. With no base image and no CMD, you&#39;d get an error.</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1"># - List running containers with `docker ps`</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1"># - Show all docker containers with `docker ps -a`</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># - Stop a running container with `docker stop &lt;container name&gt;`</span>
+</span></code></pre></div>
+<h3 id="managing-images-containers">Managing Images &amp; Containers<a class="headerlink" href="#managing-images-containers" title="Permanent link">#</a></h3>
+<h4 id="images">Images<a class="headerlink" href="#images" title="Permanent link">#</a></h4>
+<p>Is the "blueprints" of a Docker container. It builds in layers so it may have a layer for OS, dependencies, and commands.</p>
+<ul>
+<li>Can be tagged (named) <code>-t, docker tag...</code></li>
+<li>Can be listed <code>docker images</code></li>
+<li>Can be analyzed <code>docker image inspect</code></li>
+<li>Can be removed <code>docker rmi, docker prune</code></li>
+</ul>
+<h4 id="containers">Containers<a class="headerlink" href="#containers" title="Permanent link">#</a></h4>
+<ul>
+<li>Can be named <code>--name</code></li>
+<li>Can be configured in detail <code>see --help</code></li>
+<li>Can be listed <code>docker ps</code></li>
+<li>Can be removed <code>docker rm</code></li>
+</ul>
+<h4 id="attached-and-detached-states">Attached and Detached states<a class="headerlink" href="#attached-and-detached-states" title="Permanent link">#</a></h4>
+<p>The <code>docker run</code> command starts a new container based on the image in the foreground. To start up a stopped container, you simply run <code>docker start &lt;container id or name&gt;</code>. However, the container will be detached in this state and running in the background. You can start a stopped container in attached mode by using the <code>-d</code> flag: <code>docker start -a &lt;container id or name&gt;</code>.</p>
+<p>You can run a container as detached right away by running <code>docker run -p &lt;local port&gt;:&lt;container port&gt; -d &lt;image name&gt;</code>.</p>
+<p>You'll miss the logs if you detatch and reattach using the above methods. To reattach AND see the logs you can use
+<code>docker logs -f &lt;container id or name&gt;</code> to "follow" the past and future logs. This essentially is the same as reattaching.</p>
+<h4 id="entering-interactive-mode">Entering interactive mode<a class="headerlink" href="#entering-interactive-mode" title="Permanent link">#</a></h4>
+<p>Some projects require user interaction. You can start a stopped container in interactive mode by using the <code>-i</code> flag: <code>docker start -i &lt;container id or name&gt;</code></p>
+<h4 id="deleting-images-and-containers">Deleting images and containers<a class="headerlink" href="#deleting-images-and-containers" title="Permanent link">#</a></h4>
+<p>We need to stop the container before we can remove it; we can't remove running containers. Run <code>docker ps -a</code> to get all existing container names. Run <code>docker rm &lt;container id or name&gt;</code> with each id/name seperated by a space. Alternatively, you can run <code>docker container prune</code> to get rid of all stopped containers.</p>
+<p>Listing images is similar to listing containers. You use <code>docker images</code> instead of <code>docker ps</code>. When you delete an image, you run <code>docker rmi &lt;image id&gt;</code> instead of <code>docker rm &lt;container id or name&gt;</code>. It'll output the layers it deleted when you delete an image.</p>
+<blockquote>
+<p>You can only remove images that are not being used by a container. That includes containers that are stopped.</p>
+</blockquote>
+<p>Remove all non-tagged images not being used with <code>docker image prune</code>. You can remove unused tagged images with <code>docker image prune -a</code>.</p>
+<blockquote>
+<p>It's not uncommon to start a container you intend to delete after it stops running. A shortcut for this would be
+<code>docker run -p 3000:80 -d --rm &lt;image id&gt;</code> which translates to "docker run on exposed local port 3000 in detached mode and remove container when it's stopped"</p>
+</blockquote>
+<p>Once built upon, images become read-only because it contains layers that the container lays on top of. Many containers can be made from a single image. A container is just one layer of the whole stack.</p>
+<h4 id="copying-to-and-from-a-container">Copying to and from a container<a class="headerlink" href="#copying-to-and-from-a-container" title="Permanent link">#</a></h4>
+<p><code>docker cp &lt;to&gt; &lt;from&gt;</code> which looks like the following in practice: <code>docker cp my_folder container_name:/destination</code>.</p>
+<p>Works both ways just like with <code>scp</code> command.</p>
+<p>This isn't super useful for updating code since the container will need to stop/start again but it could be very useful for retrieving things like log files from a container to inspect locally.</p>
+<h4 id="naming-tagging-containers-and-images">Naming &amp; Tagging Containers and Images<a class="headerlink" href="#naming-tagging-containers-and-images" title="Permanent link">#</a></h4>
+<p>Name a container with the <code>--name</code> flag followed by the name you want and the image id: <code>docker run -p 3000:80 -d --rm --name foobar d31c8fdfbcd8</code>. </p>
+<p>Images follow the <code>name:tag</code> format. The name defines a group of possible more specialized images whereas the tag defines a specialized image within a group of images.</p>
+<p>To name and tag an image, run <code>docker build -t &lt;name&gt;:&lt;tag&gt; .</code>.</p>
+<h4 id="sharing-image-containers">Sharing Image &amp; Containers<a class="headerlink" href="#sharing-image-containers" title="Permanent link">#</a></h4>
+<p>You dont share containers, you share images. You can do this 1 of 2 ways:</p>
+<ol>
+<li>Share the Dockerfile. You'll need any accompanying files and to run <code>docker build .</code>.</li>
+<li>Share the build image. You can directly run a container based on it. Nothing else needed. You do this via Dockerhub or a private repository.</li>
+</ol>
+<h5 id="pushing-to-dockerhub">Pushing to Dockerhub<a class="headerlink" href="#pushing-to-dockerhub" title="Permanent link">#</a></h5>
+<ol>
+<li>In Dockerhub click on "Repositories"</li>
+<li>In Dockerhub click "Create Repository". Follow prompts.</li>
+<li>Build image or rename existing one locally: <code>docker tag oldname:tag yourusername/reponame</code>. Adding <code>:tag</code> after <code>yourusername/reponame</code> is optional.</li>
+<li>Run <code>docker login</code>. Log in</li>
+<li>Run <code>docker push yourusername/reponame</code>.</li>
+</ol>
+<h5 id="pulling-from-docker">Pulling from docker<a class="headerlink" href="#pulling-from-docker" title="Permanent link">#</a></h5>
+<p>If it's public you can simply run <code>docker pull yourusername/reponame</code>. </p>
+<h2 id="managing-data-working-with-volumes">Managing Data &amp; Working with Volumes<a class="headerlink" href="#managing-data-working-with-volumes" title="Permanent link">#</a></h2>
+<h3 id="types-of-data">Types of data<a class="headerlink" href="#types-of-data" title="Permanent link">#</a></h3>
+<p>There are 3 kinds: Application, Temporary, and Permanent</p>
+<h4 id="application">Application<a class="headerlink" href="#application" title="Permanent link">#</a></h4>
+<p>Code + environment (everything we've covered up until now)</p>
+<ul>
+<li>Written &amp; provided by developer</li>
+<li>Added to image and container in build phase</li>
+<li>Fixed: can't be changed once image is built</li>
+<li>Read-only, hense stored in images</li>
+</ul>
+<h4 id="temporary">Temporary<a class="headerlink" href="#temporary" title="Permanent link">#</a></h4>
+<p>e.g. entered user input</p>
+<ul>
+<li>Fetched/produced in running container</li>
+<li>Stored in memory or temporary files</li>
+<li>Dynamic and changing but cleared regularly</li>
+<li>Read + write, temporary, stored in containers</li>
+</ul>
+<h4 id="permanent">Permanent<a class="headerlink" href="#permanent" title="Permanent link">#</a></h4>
+<p>e.g. user accounts</p>
+<ul>
+<li>Fetched/produced in running container</li>
+<li>Stored in files or a database</li>
+<li>Must not be lost if container stops/restarts</li>
+<li>Read + write, permanent, stored with containers &amp; volumes</li>
+</ul>
+<p>Files written to during container run is lost when containers are removed, but not if container is simply stopped and started again. This is where volumes come in.</p>
+<h3 id="volumes">Volumes<a class="headerlink" href="#volumes" title="Permanent link">#</a></h3>
+<p>Volumes are folders on our host machine hard drive which are mounted (mapped or made available) into containers. It acts as a 2-way sync between container and host.</p>
+<p>Volumes persist if a container shuts down. If a container (re)starts and mounts a volume, any data inside of that volume is available in the container.</p>
+<h3 id="two-types-of-external-data-storages">Two types of external data storages<a class="headerlink" href="#two-types-of-external-data-storages" title="Permanent link">#</a></h3>
+<ul>
+<li>Volumes (managed by Docker)<ul>
+<li>Anonymous</li>
+<li>Named</li>
+</ul>
+</li>
+<li>Bind Mounts (managed by you)</li>
+</ul>
+<p>Managed via <code>docker volume</code> commands.</p>
+<p>Anonymous volumes are created if your Dockerfile only specifies the path for the volume <code>VOLUME [ "/app/feedback" ]</code>. Docker sets up a folder or path on your host machine; exact location is unknown to you. These are deleted when the container is deleted, so they're not great for persisting data.</p>
+<p>Named volumes are great for data which should be persistent but you don't need to edit directly. They remain after a container is removed.</p>
+<p>Running a container with <code>-v local/path:container/path</code> is the trick. As long as a new container points to the same named volume the data will persist. </p>
+<p><code>docker run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback feedback-node:volumes</code></p>
+<h3 id="bind-mounts">Bind Mounts<a class="headerlink" href="#bind-mounts" title="Permanent link">#</a></h3>
+<p>Similar to Volumes but you define a folder/path on your host machine. Bind Mounts are perfect for development because instead of copying a snapshot of the code it syncs your changes to the code without you needing to stop, build again, run a new container based off that new build. Named Volumes are good for persisting data but are no good for ongoing development because you have no idea where the local copy is stored.</p>
+<p>You can set up Bind Mounts by adding another <code>-v</code> flag and point to the absolute path for your local directory:</p>
+<p><code>docker -run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -v "/full/path/to/local/project:/app" feedback-node:volumes</code></p>
+<blockquote>
+<p>You don't have to write out the full path. Use <code>-v $(pwd):/app</code> for sanity</p>
+</blockquote>
+<p>The syntax of the second <code>-v</code> flag means you're copying all contents of that folder to the container's <code>/app</code> folder.</p>
+<p>This renders the following steps in the Dockerfile moot:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="l l-Scalar l-Scalar-Plain">COPY package.json .</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="l l-Scalar l-Scalar-Plain">RUN npm instal</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="l l-Scalar l-Scalar-Plain">COPY . .</span>
+</span></code></pre></div>
+<p>This is because the second <code>-v</code> flag overwrites everything in the container's <code>/app</code> folder.</p>
+<h4 id="summing-up-anonymousnamed-volumes-vs-bind-mounts">Summing up Anonymous/Named Volumes vs Bind Mounts<a class="headerlink" href="#summing-up-anonymousnamed-volumes-vs-bind-mounts" title="Permanent link">#</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span>/app/data<span class="w"> </span>...<span class="w"> </span><span class="c1"># Anonymous Volume</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span>data:/app/data<span class="w"> </span>...<span class="w"> </span><span class="c1"># Named Volume</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span>/path/to/code:/app/code<span class="w"> </span>...<span class="w"> </span><span class="c1"># Bind Mount</span>
+</span></code></pre></div>
+<p>Anonymous Volumes
+- Created specifically for a single container
+- Survives container shutdown/restart unless --rm is used
+- Cannot be shared across containers
+- Since it's anonymous, it can't be re-used (even on same image)</p>
+<p>Named Volumes
+- Created in general - not tied to any specific container
+- Survives container shutdown/restart - removal via Docker CLI
+- Can be shared across congtainers
+- Can be reused for same container (across restarts)</p>
+<p>Bind Mounts
+- Location on host file syustem, not tied to any specific container
+- Survives container shutdown/restart - removal on host fs
+- Can be shared across containers
+- Can be reused for same container (across restarts)</p>
+<p>Internal container paths take precedence so for <code>-v $(pwd):/app</code> your local changes will overwrite the container's files, where as <code>-v logs:/app/logs</code> your local will not. If you have a situation like
+you don't have <code>node_modules</code> locally but you do in the container, you can add an anonymous volume to protect the folder in the container <code>-v /app/node_modules</code>.</p>
+<h3 id="read-only-volumes">Read-Only Volumes<a class="headerlink" href="#read-only-volumes" title="Permanent link">#</a></h3>
+<p>We can enforce read-only on a container level by adding <code>:ro</code> to the end of the container path. We'll still be able to write from the local fs but not from the container:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>:80<span class="w"> </span>--name<span class="w"> </span>feedback-app<span class="w"> </span>-v<span class="w"> </span>feedback:/app/feedback<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/app:ro&quot;</span><span class="w"> </span>-v<span class="w"> </span>/app/node_modules<span class="w"> </span>-v<span class="w"> </span>feedback-node:volumes
+</span></code></pre></div>
+<h3 id="managing-volumes">Managing Volumes<a class="headerlink" href="#managing-volumes" title="Permanent link">#</a></h3>
+<p>View the volumes created with <code>docker volume ls</code>. This shows the volumes but NOT the bind mounts, because bind mounts are managed by the user, not Docker.</p>
+<p>The volumes are created automatically with the <code>-v</code> flag, so it's not usually necessary to manually create them with <code>docker volume create</code>.</p>
+<p>Volumes in use cannot be removed. You need to stop the container using the volume before it can be removed. You can get rid of unused volumes with <code>docker volume prune</code>.</p>
+<p>If a volume is removed, the data in it will be lost. Recreating one with the same name will not bring back the data.</p>
+<h3 id="dockerignore">.dockerignore<a class="headerlink" href="#dockerignore" title="Permanent link">#</a></h3>
+<p>Acts like <code>.gitignore</code> but for docker. In general, you want to add anything which isn't required by your application to execute correctly (such as <code>Dockerfile</code> or <code>.git</code>).</p>
+<h3 id="working-with-environment-variables-files">Working with Environment Variables &amp; Files<a class="headerlink" href="#working-with-environment-variables-files" title="Permanent link">#</a></h3>
+<p>Docker supports build-time ARGuments and runtime ENVironment variables</p>
+<p>ARG:
+- Available inside of Dockerfile, NOT accessible in CMD or any application code
+- Set an iamge build (docker build) via --build-arg</p>
+<p>ENV:
+- Available inside of Dockerfile and in application code
+- Set via ENV in Dockerfile or via <code>--env</code> or <code>-e</code> on docker run</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="l l-Scalar l-Scalar-Plain">ENV PORT 80</span><span class="w"> </span><span class="c1"># This will be accessible from within the application</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="l l-Scalar l-Scalar-Plain">EXPOSE $PORT</span>
+</span></code></pre></div>
+<p>You can also point to a file to define environment variables</p>
+<p><em>.env</em></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>PORT=8000
+</span></code></pre></div>
+<p><code>docker run -d -p 3000:8000 --env-file ./.env ...</code></p>
+<p>This is advantageous because it allows you to run the same command over and over and you only need to update a file if vars need to change.</p>
+<blockquote>
+<p>One important note about environment variables and security: Depending on which kind of data you're storing in your environment variables, you might not want to include the secure data directly in your Dockerfile.</p>
+<p>Instead, go for a separate environment variables file which is then only used at runtime (i.e. when you run your container with docker run).</p>
+<p>Otherwise, the values are "baked into the image" and everyone can read these values via docker history <image>.</p>
+<p>For some values, this might not matter but for credentials, private keys etc. you definitely want to avoid that!</p>
+<p>If you use a separate file, the values are not part of the image since you point at that file when you run docker run. But make sure you don't commit that separate file as part of your source control repository, if you're using source control.</p>
+</blockquote>
+<h3 id="using-build-arguments-arg">Using build arguments (ARG)<a class="headerlink" href="#using-build-arguments-arg" title="Permanent link">#</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="l l-Scalar l-Scalar-Plain">ARG DEFAULT_PORT=80</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="l l-Scalar l-Scalar-Plain">ENV PORT $DEFAULT_PORT</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="l l-Scalar l-Scalar-Plain">EXPOSE $PORT</span>
+</span></code></pre></div>
+<h2 id="networking-cross-container-communication">Networking &amp; Cross-Container Communication<a class="headerlink" href="#networking-cross-container-communication" title="Permanent link">#</a></h2>
+<p>Containers can commiunicate with the www out of the box.</p>
+<p>Instead of using <code>localhost</code> when talking to another service on the same machine, use <code>host.docker.internal</code> if a domain is needed. This will be recognized by Docker as a service on the host machine.</p>
+<p>Point to the IP address of the other container. To find out the IP address run <code>docker container inspect &lt;container name&gt;</code>. You will also need to point to the port which can be found in the same output as the inspect command or <code>docker ps -a</code> with the port being listed next to the name of the container.</p>
+<h3 id="container-networks">Container Networks<a class="headerlink" href="#container-networks" title="Permanent link">#</a></h3>
+<p>Within a Docker network, all containers can commuincate with each other and IPs are automatically resolved.</p>
+<p>They need to be manually set up (unlike volumes). <code>docker network create &lt;network name&gt;</code> and then you can run a container with it <code>docker run &lt;options&gt; --network &lt;network name&gt;</code>.</p>
+<p>If more than one container are part of the same network, you can plug in the name of the container for the domain when trying to connect. Example:</p>
+<p>Say you want to connect a node app to a mongodb instance. You can put the mongodb instance in a container and change the node code to the following:</p>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nx">mongoose</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="s1">&#39;mongodb://mongodb-instance:27017/swfavorites&#39;</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">useNewUrlParser</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mf">3000</span><span class="p">);</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">);</span>
+</span></code></pre></div>
+<p>Followed by the below commands:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>favorites-net
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>mongodb-instance<span class="w"> </span>--network<span class="w"> </span>favorites-net<span class="w"> </span>mongo
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>:3000<span class="w"> </span>--rm<span class="w"> </span>--name<span class="w"> </span>favorites<span class="w"> </span>--network<span class="w"> </span>favorites-net<span class="w"> </span>favorites-node
+</span></code></pre></div>
+<blockquote>
+<p>There's no need to expose ports if you're using a container network. It's only needed if you're trying to connect to the container from outside the container (like from local machine) or container network.
+This is mostly helpful for server-side microservices. If you have a backend service talking with a frontend app, you'll need to expose ports to the frontend app since it runs in a browser and you'll need to
+expose ports for the backend because the browser will make requests to it. You can use a container network AND expose ports in this case.</p>
+<p>When using a container network or host.docker.internal, Docker will <strong>NOT replace your source code.</strong> It semply detects outgoing requests and resolves the IP for such requests.</p>
+</blockquote>
+<h3 id="docker-network-drivers">Docker Network Drivers<a class="headerlink" href="#docker-network-drivers" title="Permanent link">#</a></h3>
+<p>Docker Networks actually support different kinds of "Drivers" which influence the behavior of the Network.</p>
+<p>The default driver is the "bridge" driver - it provides the behavior shown in this module (i.e. Containers can find each other by name if they are in the same Network).</p>
+<p>The driver can be set when a Network is created, simply by adding the <code>--driver</code> option.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>--driver<span class="w"> </span>bridge<span class="w"> </span>my-net
+</span></code></pre></div>
+<p>Of course, if you want to use the "bridge" driver, you can simply omit the entire option since "bridge" is the default anyways.</p>
+<p>Docker also supports these alternative drivers - though you will use the "bridge" driver in most cases:</p>
+<ul>
+<li>host: For standalone containers, isolation between container and host system is removed (i.e. they share localhost as a network)</li>
+<li>overlay: Multiple Docker daemons (i.e. Docker running on different machines) are able to connect with each other. Only works in "Swarm" mode which is a dated / almost deprecated way of connecting multiple containers</li>
+<li>macvlan: You can set a custom MAC address to a container - this address can then be used for communication with that container</li>
+<li>none: All networking is disabled.</li>
+<li>Third-party plugins: You can install third-party plugins which then may add all kinds of behaviors and functionalities</li>
+</ul>
+<p>As mentioned, the "bridge" driver makes most sense in the vast majority of scenarios.</p>
+<h2 id="building-multi-container-applications">Building Multi-Container Applications<a class="headerlink" href="#building-multi-container-applications" title="Permanent link">#</a></h2>
+<h3 id="adding-data-persistence-to-mongodb-with-volumes">Adding Data Persistence to MongoDB with Volumes<a class="headerlink" href="#adding-data-persistence-to-mongodb-with-volumes" title="Permanent link">#</a></h3>
+<p>Look up where MongoDB stores things and then created a named volume for it <code>docker run --name mongodb -v data:/data/db --rm -d --network goals-net mongo</code>.</p>
+<p>You can add credentials by using environment variables.</p>
+<p>The rest of this section was rehashing what was already taught above.</p>
+<h2 id="using-docker-compose-for-multi-container-orchestration">Using Docker Compose for Multi-Container Orchestration<a class="headerlink" href="#using-docker-compose-for-multi-container-orchestration" title="Permanent link">#</a></h2>
+<p>Great for managing multiple containers on the same host. You can build and run with a single command as well as stop with a single command.</p>
+<p>Docker compose is NOT:</p>
+<ul>
+<li>A replacement for Dockerfiles for custom images</li>
+<li>A replacement for images or containers</li>
+<li>Suited for managing multiple containers on different hosts</li>
+</ul>
+<p>Compose files must define services (a.k.a. containers) and also define published ports, environment variables, volumes, and networks.</p>
+<p><em>docker-compose.yaml</em>  </p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.8&quot;</span><span class="w"> </span><span class="c1"># This is the version of the docker compose specification we want to use, NOT the app.</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">mongodb</span><span class="p">:</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mongo&quot;</span><span class="w">  </span><span class="c1"># This is a premade image from Dockerhub so no need to build</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data:/app/data</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="c1"># environment:</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="c1">#   - MONGO_INITDB_ROOT_USERNAME: foo  # Can also use the syntax MONGO_INITDB_ROOT_USERNAME=foo</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="c1">#   - MONGO_INITDB_ROOT_password: password </span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nt">env_file</span><span class="p">:</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./env/mongo.env</span><span class="w">  </span><span class="c1"># This needs the &quot;key=value&quot; syntax rather than &quot;key: value&quot;</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="c1"># networks:  # You can specify your network, but Docker will do this automatically with compose. Specifying will add this service to both this and the auto-generated network</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="c1">#   - goals-net</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./backend</span><span class="w">  </span><span class="c1"># Point to the folder where the Dockerfile is. Short form.</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="c1"># build:</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">    </span><span class="c1">#   context: ./backend</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="c1">#   dockerfile: Dockerfile-dev  # Only needed if named something other than &quot;Dockerfile&quot;</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="c1">#   args:</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w">    </span><span class="c1">#     some-arg: 1</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;80:80&quot;</span><span class="w">  </span><span class="c1"># Can expose multiple ports per container</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs:/app/logs</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./backend:/app</span><span class="w">  </span><span class="c1"># Relative paths allowed for bind mounts in a compose file</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/app/node_modules</span>
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="w">    </span><span class="nt">env_file</span><span class="p">:</span>
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./env/backend.env</span>
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+</span><span id="__span-10-30"><a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mongodb</span>
+</span><span id="__span-10-31"><a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="w">  </span><span class="nt">frontend</span><span class="p">:</span>
+</span><span id="__span-10-32"><a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./frontend</span>
+</span><span id="__span-10-33"><a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a><span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span>
+</span><span id="__span-10-34"><a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;3000:3000&#39;</span>
+</span><span id="__span-10-35"><a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"> </span>
+</span><span id="__span-10-36"><a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./frontend/src:/app/src</span>
+</span><span id="__span-10-37"><a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">    </span><span class="nt">stdin_open</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># the &quot;-i&quot; in the &quot;docker run&quot; command</span>
+</span><span id="__span-10-38"><a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="w">    </span><span class="nt">tty</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># the &quot;-t&quot; in the &quot;docker run&quot; command</span>
+</span><span id="__span-10-39"><a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span><span class="w"> </span>
+</span><span id="__span-10-40"><a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backend</span>
+</span><span id="__span-10-41"><a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a>
+</span><span id="__span-10-42"><a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a><span class="c1"># If you have named volumes you need to add volumes to the top level and specify the name with no value. It&#39;s a thing Docker needs to recognize named volumes.</span>
+</span><span id="__span-10-43"><a id="__codelineno-10-43" name="__codelineno-10-43" href="#__codelineno-10-43"></a><span class="c1"># You can share the volume between containers if you specify i8t for each service.</span>
+</span><span id="__span-10-44"><a id="__codelineno-10-44" name="__codelineno-10-44" href="#__codelineno-10-44"></a><span class="c1"># Anonymous volumes and bind mounts dont need to be specified here.</span>
+</span><span id="__span-10-45"><a id="__codelineno-10-45" name="__codelineno-10-45" href="#__codelineno-10-45"></a><span class="nt">volumes</span><span class="p">:</span>
+</span><span id="__span-10-46"><a id="__codelineno-10-46" name="__codelineno-10-46" href="#__codelineno-10-46"></a><span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+</span><span id="__span-10-47"><a id="__codelineno-10-47" name="__codelineno-10-47" href="#__codelineno-10-47"></a><span class="w">  </span><span class="nt">logs</span><span class="p">:</span>
+</span></code></pre></div>
+<p>By default the <code>--rm</code> flag applies when using <code>docker compoase</code>.</p>
+<p>You still need to add the <code>-d</code> flag to run in detached mode: <code>docker-compose up -d</code>.</p>
+<p>The <code>docker-compose down</code> command will NOT remove volumes. For that you need to run <code>docker-compose down -v</code>.</p>
+<p>You can use docker-compose to just build but not run by using <code>docker-compose build</code>.</p>
+<p>If you want docker-compose to build a fresh image you can force it with the <code>--build</code> flag. That's for when you have an existing image but maybe have had a code change since the last build. <code>docker-compose up --build</code>.</p>
+<p>You can also force a container name through the yaml file by using <code>container_name</code>:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nn">...</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nt">mongodb</span><span class="p">:</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mongo&quot;</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="nt">volumes</span><span class="p">:</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data:/data/db</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">        </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mongodb</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</span></code></pre></div>
+<p>This will cause the container to be named "mongodb" instead of the auto-generated name "project-name_mongodb_01".</p>
+<h2 id="working-with-utility-containers-executing-commands-in-containers">Working with Utility Containers &amp; Executing Commands In Containers<a class="headerlink" href="#working-with-utility-containers-executing-commands-in-containers" title="Permanent link">#</a></h2>
+<p>A container with an environment but no application. Useful for setting up a dev environment without having to install a bunch of stuff on your host machine.
+- Use a bind mount to save files from the container to the local machine. You could make a super slim node image, run <code>npm init</code>, and have the newly generated package.json file appear in your local directory.</p>
+<h3 id="executing-commands">Executing Commands<a class="headerlink" href="#executing-commands" title="Permanent link">#</a></h3>
+<p><code>docker exec -it &lt;container name&gt; &lt;command&gt;</code></p>
+<p>To "ssh" into a container, simply run <code>docker exec -it &lt;container name&gt; /bin/bash</code>.</p>
+<p>Using <code>ENTRYPOINT</code> is very similar to <code>CMD</code> in the Docker file. The main difference being that if you use <code>CMD</code>, you can override the default <code>CMD</code> by adding it to the end of the command <code>docker run -it node npm init</code>.
+With <code>ENTRYPOINT</code> whatever you add to the end of your run command is appended to whatever's inside ENTRYPOINT.</p>
+<p>Example:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="l l-Scalar l-Scalar-Plain">FROM node:14-alpine</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="l l-Scalar l-Scalar-Plain">WORKDIR /app</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="l l-Scalar l-Scalar-Plain">ENTRYPOINT [ &quot;npm&quot; ]</span>
+</span></code></pre></div>
+<p>Then you can run whatever npm command you want with the run command: <code>docker run -it -v $(pwd):/app myimage init</code> will run <code>npm init</code> on startup.</p>
+<p>We can do this with <code>docker-compose</code>:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.8&quot;</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">node</span><span class="p">:</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">        </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">        </span><span class="nt">stdin_open</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">        </span><span class="nt">tty</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="nt">volumes</span><span class="p">:</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./:/app</span>
+</span></code></pre></div>
+<p>The command you'd use is <code>docker-compose run npm init</code>.</p>
+<blockquote>
+<p><strong>NOTE</strong>: Containers will not be removed if you use <code>run</code>. You still need that <code>--rm</code> flag: <code>docker-compose run --rm npm init</code>.</p>
+</blockquote>
+<h2 id="deploying-docker-containers">Deploying Docker Containers<a class="headerlink" href="#deploying-docker-containers" title="Permanent link">#</a></h2>
+<p>This is the key selling point of Docker. What works on your machine (in a container) will also work after deployment. Everything's exactly the same. so there are no surprises.</p>
+<p>Things to look out for:</p>
+<ul>
+<li>Bind mounts shouldn't be used in Production</li>
+<li>Containerized apps might need a build step (e.g. React apps)</li>
+<li>Multi-container projects might need to be split (or should be split) across multiple hosts/remote machines</li>
+<li>Tradeoffs between control and responsibility might be worth it</li>
+</ul>
+<p>Example: Deploy to AWS EC2:</p>
+<ol>
+<li>Create and launch an EC2 instance, VPC, and security group</li>
+<li>Configure security group to expose all required ports to WWW</li>
+<li>Connect to instance (SSH), install Docker, and run container</li>
+</ol>
+<h3 id="bind-mounts-volumes-copy">Bind Mounts, Volumes, &amp; COPY<a class="headerlink" href="#bind-mounts-volumes-copy" title="Permanent link">#</a></h3>
+<p>In Development:</p>
+<ul>
+<li>Containers should encapsulate the runtime environment but not necessarily the code</li>
+<li>We use bind mounts to provide our local host project files to the running container</li>
+<li>Allows for instant updates without restarting the container</li>
+</ul>
+<p>In Production:</p>
+<ul>
+<li>A container should really work standalone, you should NOT have source code on your remote machine</li>
+<li>Image/Container is "single source of truth"</li>
+<li>Use COPY instead of bind mounts to copy a code snapshot into the image</li>
+<li>Ensures that every image runs without any extra, surrounding configuration or code</li>
+</ul>
+<h3 id="deploying-to-ec2">Deploying to EC2<a class="headerlink" href="#deploying-to-ec2" title="Permanent link">#</a></h3>
+<p>After creating an EC2 instance and SSHing in you'll need to install docker.</p>
+<p><em>Assuming you're using Amazon Linux:</em></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>sudo<span class="w"> </span>yum<span class="w"> </span>update<span class="w"> </span>-y
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sudo<span class="w"> </span>amazon-linux-extras<span class="w"> </span>install<span class="w"> </span>docker
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>sudo<span class="w"> </span>service<span class="w"> </span>docker<span class="w"> </span>start
+</span></code></pre></div>
+<h4 id="deploy-source-code-vs-image">Deploy Source Code vs Image<a class="headerlink" href="#deploy-source-code-vs-image" title="Permanent link">#</a></h4>
+<p>We can either deploy the source code or the built image.</p>
+<p>Deploying source you'd push code to remote machine, run <code>docker build</code> and then <code>docker run</code>. This really isn't necessary and just creates more steps.</p>
+<p>Alternatively we can prep everything locally and get the built image to the destination without having to do anything there.</p>
+<h4 id="running-publishing-the-app-on-ec2">Running &amp; Publishing the App on EC2<a class="headerlink" href="#running-publishing-the-app-on-ec2" title="Permanent link">#</a></h4>
+<p>Once a built image is pushed to a repository you can simply do <code>docker run &lt;username/image name&gt;</code> to run a container based off of that image. No login required if it's a public image.</p>
+<p>You can see the public IP address under Instances in the EC2 section of the AWS console. However, by default just entering the IP address in the browser will NOT load the application. You need to update the security group first.</p>
+<p>You can see what security groups an instance has by clicking on the Security tab while viewing the instance in the AWS console. Click on the link for the security group (usually named launch-wizard-somenumber) and you'll see the security group settings. By default Inbound rules only allows SSH but Outbound is all traffic. This is why downloading the image from Dockerhub works but it wont load in the browser.</p>
+<p>Edit the Inbound rules and add one for HTTP. Only allows port 80 but that's fine. Allow any IP to access.</p>
+<blockquote>
+<p>Be sure to run <code>docker pull</code> if you update the published image. Otherwise Docker will use the already existing image that it's using.</p>
+</blockquote>
+<h4 id="disadvantages-of-our-current-approach">Disadvantages of our Current Approach<a class="headerlink" href="#disadvantages-of-our-current-approach" title="Permanent link">#</a></h4>
+<p>How we did this was fine but there are some downsides:</p>
+<ul>
+<li>Lots of manual steps for setting it up </li>
+<li>The way we set up EC2 we fully "owned" it</li>
+<li>We were responsible for it and its security </li>
+<li>Had to keep software updated and manage network/security groups firewall</li>
+</ul>
+<p><strong>A better alternative might be using a managed service, specifically ECS (Elastic Container Service).</strong>
+Azure and GCP have equivalent services as well.</p>
+<p>However, ECS is not available for the free tier <strong>so it will cost money</strong>.</p>
+<h3 id="deploying-to-ecs">Deploying to ECS<a class="headerlink" href="#deploying-to-ecs" title="Permanent link">#</a></h3>
+<p>You'll want to use a load balancer that your domain points to and Elastic File System (EFS) Volumes to manage persisted data.</p>
+<h3 id="understanding-a-common-problem">Understanding a Common Problem<a class="headerlink" href="#understanding-a-common-problem" title="Permanent link">#</a></h3>
+<p>Some apps/projects require a build step, such as an optimization script that need sto be executed AFTER development but BEFORE deployment (e.g. Angular apps).</p>
+<p>This means the development and production setup are NOT equal. This can be a problem and works against what Docker's trying to do.</p>
+<p>We need to build a container that's meant for the build-optimized code files, not the dev version (what we use when actively developing with <code>npm start</code>).</p>
+<p>This is when we'll likely need 2 Dockerfiles. One will need to be named something else like <code>Dockerfile.prod</code>.</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="l l-Scalar l-Scalar-Plain">FROM node:14-alpine</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="l l-Scalar l-Scalar-Plain">WORKDIR /app</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="l l-Scalar l-Scalar-Plain">COPY package.json .</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="l l-Scalar l-Scalar-Plain">RUN npm install</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="l l-Scalar l-Scalar-Plain">COPY . .</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="l l-Scalar l-Scalar-Plain">CMD [ &quot;npm&quot;, &quot;run&quot;, &quot;build&quot; ]</span>
+</span></code></pre></div>
+<p>This isn't enough though. We need a server for the build files. This is where multi-stage builds come in.</p>
+<h3 id="mutli-stage-builds">Mutli-Stage Builds<a class="headerlink" href="#mutli-stage-builds" title="Permanent link">#</a></h3>
+<p>The above yaml can be seen as the first stage. We'll only need the node image to build but we can use a different image to serve up the files.</p>
+<blockquote>
+<p>Every FROM instruction creates a new stage in your Docker file. Even if you use the same image as in the previous step.</p>
+</blockquote>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Adding &quot;as build&quot; names the stage and makes it possible to copy contents from one stage to another</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="l l-Scalar l-Scalar-Plain">FROM node:14-alpine as build</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="l l-Scalar l-Scalar-Plain">WORKDIR /app</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="l l-Scalar l-Scalar-Plain">COPY package.json .</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="l l-Scalar l-Scalar-Plain">RUN npm install</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="l l-Scalar l-Scalar-Plain">COPY . .</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="l l-Scalar l-Scalar-Plain">RUN npm run build</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="l l-Scalar l-Scalar-Plain">FROM nginx:stable-alpine</span>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="l l-Scalar l-Scalar-Plain"># The example app we&#39;re using is made with React which puts its build files in &quot;build&quot; instead of &quot;dist&quot;</span>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="l l-Scalar l-Scalar-Plain"># See nginx image documentation on dockerhub. It explains the default directory which is what we&#39;re copying to below</span>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="l l-Scalar l-Scalar-Plain">COPY --from=build /app/build /usr/share/nginx/html</span>
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>
+</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="l l-Scalar l-Scalar-Plain">EXPOSE 80</span><span class="w">  </span><span class="c1"># Because port 80 is default for nginx</span>
+</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>
+</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="l l-Scalar l-Scalar-Plain">CMD [ &quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot; ]</span>
+</span></code></pre></div>
+<p>If you're deployng a frontend app to the same server as your backend code you can remove "localhost" in the API request URLs.</p>
+<p>To build off of another file instead of the default Dockerfile you need the <code>-f</code> flag when running <code>docker build</code>:</p>
+<p><code>docker build -f frontend/Dockerfile.prod -t academind/goals-react ./frontend</code></p>
+<p>This gives the Docker engine the context in which it will be building from.</p>
+<p>We can also target build stages and only have them build by using the <code>--target</code> flag:</p>
+<p><code>docker build --target build -f frontend/Dockerfile.prod -t academind/goals-react ./frontend</code></p>
+<p>This will cause Docker to skip the <code>FROM nginx:stable-alpine</code> stage while building.</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">August 9, 2024</span>
+  </span>
+
+    
+    
+    
+      
+  
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Contributors">
+      
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4Z"/></svg>
+      
+    </span>
+    <nav>
+      
+        <a href="mailto:s25w89@gmail.com">stevewhitmore</a>
+    </nav>
+  </span>
+
+    
+    
+  </aside>
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020 National Association of Insurance Commissioners
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.tooltips"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      
+        <script src="https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js"></script>
+      
+        <script src="../../../javascripts/tablesort.js"></script>
+      
+    
+  </body>
+</html>
